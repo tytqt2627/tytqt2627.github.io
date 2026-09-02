@@ -1,0 +1,535 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>問答隊請假系統</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-slate-100 min-h-screen font-sans">
+
+    <!-- 頂部導覽列 -->
+    <nav class="bg-indigo-900 text-white shadow-md">
+        <div class="max-w-4xl mx-auto px-4 py-3 flex justify-between items-center">
+            <span class="font-bold text-lg tracking-wide">問答隊管理系統</span>
+            <div id="nav-home-btn" class="hidden">
+                <a href="#home" class="text-xs bg-indigo-800 hover:bg-indigo-700 px-3 py-1.5 rounded-lg transition text-indigo-100">← 返回主頁入口</a>
+            </div>
+        </div>
+    </nav>
+
+    <div class="max-w-4xl mx-auto p-4 sm:p-6">
+
+        <!-- ==================== 頁面 0：主頁入口門戶 (#home) ==================== -->
+        <main id="page-home" class="space-y-8 py-8">
+            <div class="text-center space-y-3">
+                <h1 class="text-3xl font-extrabold text-slate-800">問答隊請假管理系統</h1>
+                <p class="text-slate-500 text-sm max-w-md mx-auto">請選擇您的身份進入對應的系統頁面</p>
+            </div>
+
+            <div class="grid md:grid-cols-2 gap-6 max-w-2xl mx-auto">
+                <!-- 隊員入口卡片 -->
+                <a href="#member" class="group bg-white p-6 rounded-2xl shadow-md border border-slate-200 hover:shadow-xl hover:border-indigo-500 transition duration-300 flex flex-col justify-between">
+                    <div>
+                        <div class="w-12 h-12 bg-indigo-100 text-indigo-600 rounded-xl flex items-center justify-center text-2xl font-bold mb-4 group-hover:scale-110 transition">
+                            👤
+                        </div>
+                        <h2 class="text-xl font-bold text-slate-800 group-hover:text-indigo-600 transition">隊員請假端</h2>
+                        <p class="text-slate-500 text-xs mt-2 leading-relaxed">隊員帳號登入、線上遞交請假表單，以及即時查詢個人的請假審核紀錄與狀態。</p>
+                    </div>
+                    <div class="mt-6 flex items-center text-indigo-600 font-semibold text-sm">
+                        進入隊員端 <span class="ml-1 group-hover:translate-x-1 transition">→</span>
+                    </div>
+                </a>
+
+                <!-- 隊長入口卡片 -->
+                <a href="#captain" class="group bg-white p-6 rounded-2xl shadow-md border border-slate-200 hover:shadow-xl hover:border-slate-700 transition duration-300 flex flex-col justify-between">
+                    <div>
+                        <div class="w-12 h-12 bg-slate-100 text-slate-700 rounded-xl flex items-center justify-center text-2xl font-bold mb-4 group-hover:scale-110 transition">
+                            🛡️
+                        </div>
+                        <h2 class="text-xl font-bold text-slate-800 group-hover:text-slate-900 transition">隊長審核端</h2>
+                        <p class="text-slate-500 text-xs mt-2 leading-relaxed">隊長專屬管理後台，審核全隊請假申請、處理狀態變更及管理隊員帳號重設密碼。</p>
+                    </div>
+                    <div class="mt-6 flex items-center text-slate-700 font-semibold text-sm">
+                        進入隊長端 <span class="ml-1 group-hover:translate-x-1 transition">→</span>
+                    </div>
+                </a>
+            </div>
+        </main>
+
+
+        <!-- ==================== 頁面 1：隊員請假端 (#member) ==================== -->
+        <main id="page-member" class="space-y-6 hidden">
+            <header class="bg-indigo-700 text-white rounded-xl p-6 shadow-md">
+                <h1 class="text-2xl font-bold">隊員請假專區</h1>
+                <p class="text-indigo-200 text-sm mt-1">遞交請假申請及查詢個人審核紀錄</p>
+            </header>
+
+            <!-- 隊員登入/註冊卡片 -->
+            <div id="member-auth-card" class="bg-white rounded-xl p-6 shadow-md border border-slate-200 max-w-md mx-auto">
+                <h2 class="text-xl font-bold text-slate-800 mb-2 text-center">隊員帳號登入</h2>
+                <p class="text-xs text-slate-500 mb-4 text-center">首次使用輸入姓名與密碼即可完成註冊</p>
+                <form onsubmit="handleMemberLogin(event)" class="space-y-4">
+                    <div>
+                        <label class="block text-sm font-semibold text-slate-700 mb-1">隊員姓名</label>
+                        <input type="text" id="login-name" required placeholder="例如：張小明" class="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-indigo-500 focus:outline-none">
+                    </div>
+                    <div>
+                        <div class="flex justify-between items-center mb-1">
+                            <label class="block text-sm font-semibold text-slate-700">登入密碼</label>
+                            <button type="button" onclick="handleForgotPassword()" class="text-xs text-indigo-600 hover:text-indigo-800 hover:underline">忘記密碼？</button>
+                        </div>
+                        <input type="password" id="login-pwd" required placeholder="請設定或輸入密碼" class="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-indigo-500 focus:outline-none">
+                    </div>
+                    <button type="submit" class="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-semibold py-2.5 rounded-lg shadow transition">登入 / 註冊</button>
+                </form>
+            </div>
+
+            <!-- 隊員控制台（登入後顯示） -->
+            <div id="member-dashboard" class="hidden space-y-6">
+                <div class="bg-indigo-50 border border-indigo-200 rounded-xl p-4 flex justify-between items-center">
+                    <div>
+                        <span class="text-xs text-indigo-500 font-semibold block">當前隊員</span>
+                        <span id="current-user-display" class="text-lg font-bold text-indigo-900"></span>
+                    </div>
+                    <button onclick="handleMemberLogout()" class="text-xs bg-slate-200 hover:bg-slate-300 text-slate-700 px-3 py-1.5 rounded-lg font-medium transition">登出帳號</button>
+                </div>
+
+                <div class="bg-white rounded-xl p-6 shadow-md border border-slate-200">
+                    <h2 class="text-lg font-bold text-slate-800 mb-4 border-b pb-2">填寫請假單</h2>
+                    <form id="leave-form" onsubmit="handleFormSubmit(event)" class="space-y-4">
+                        <div>
+                            <label class="block text-sm font-semibold text-slate-700 mb-1">請假日期</label>
+                            
+                            <!-- 快速點選按鈕 -->
+                            <div class="flex flex-wrap gap-2 mb-2">
+                                <button type="button" onclick="selectQuickDate('tue')" class="text-xs bg-indigo-50 hover:bg-indigo-100 text-indigo-700 border border-indigo-200 px-3 py-1.5 rounded-lg transition font-medium flex items-center gap-1">
+                                    ⚡ 下一個星期二 <span id="label-next-tue" class="text-indigo-500 font-normal"></span>
+                                </button>
+                                <button type="button" onclick="selectQuickDate('fri')" class="text-xs bg-indigo-50 hover:bg-indigo-100 text-indigo-700 border border-indigo-200 px-3 py-1.5 rounded-lg transition font-medium flex items-center gap-1">
+                                    ⚡ 下一個星期五 <span id="label-next-fri" class="text-indigo-500 font-normal"></span>
+                                </button>
+                            </div>
+
+                            <!-- 手動月曆選擇器 -->
+                            <input type="date" id="leave-date" required class="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-indigo-500 focus:outline-none bg-white">
+                        </div>
+
+                        <div>
+                            <label class="block text-sm font-semibold text-slate-700 mb-1">請假原因</label>
+                            <textarea id="leave-reason" rows="3" required placeholder="請說明請假原因（如：病假、補習、家中有事）" class="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-indigo-500 focus:outline-none"></textarea>
+                        </div>
+                        <button type="submit" class="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-semibold py-2.5 rounded-lg shadow transition">遞交申請</button>
+                    </form>
+                    <div id="success-msg" class="hidden mt-4 p-3 bg-emerald-100 text-emerald-800 rounded-lg text-center font-medium">
+                        申請已成功遞交！
+                    </div>
+                </div>
+
+                <div class="bg-white rounded-xl p-6 shadow-md border border-slate-200">
+                    <h2 class="text-lg font-bold text-slate-800 mb-4 border-b pb-2">我的歷史紀錄</h2>
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-left border-collapse">
+                            <thead>
+                                <tr class="border-b bg-slate-50 text-slate-600 text-sm">
+                                    <th class="p-3">請假日期</th>
+                                    <th class="p-3">原因</th>
+                                    <th class="p-3">遞交時間</th>
+                                    <th class="p-3">審核狀態</th>
+                                </tr>
+                            </thead>
+                            <tbody id="my-records-table" class="divide-y text-sm"></tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </main>
+
+
+        <!-- ==================== 頁面 2：隊長審核端 (#captain) ==================== -->
+        <main id="page-captain" class="space-y-6 hidden">
+            <header class="bg-slate-800 text-white rounded-xl p-6 shadow-md flex justify-between items-center">
+                <div>
+                    <h1 class="text-2xl font-bold">隊長審核管理後台</h1>
+                    <p class="text-slate-300 text-sm mt-1">審核隊員請假申請與管理隊員帳號</p>
+                </div>
+                <a href="#home" class="text-xs bg-slate-700 hover:bg-slate-600 text-white px-3 py-1.5 rounded-lg transition">返回主頁</a>
+            </header>
+
+            <!-- 隊長驗證卡片 -->
+            <div id="captain-auth-card" class="bg-white rounded-xl p-6 shadow-md border border-slate-200 max-w-md mx-auto text-center">
+                <h2 class="text-xl font-bold text-slate-800 mb-4">隊長身份驗證</h2>
+                <div class="flex gap-2">
+                    <input type="password" id="captain-pwd" placeholder="輸入隊長密碼" class="px-4 py-2 border rounded-lg focus:ring-2 focus:ring-slate-500 focus:outline-none flex-1">
+                    <button onclick="checkCaptainAuth()" class="bg-slate-800 text-white px-4 py-2 rounded-lg font-medium hover:bg-slate-900 transition">登入</button>
+                </div>
+            </div>
+
+            <!-- 隊長審核控制台 -->
+            <div id="captain-panel" class="hidden space-y-6">
+                <!-- 隊長功能列 -->
+                <div class="bg-slate-200 border border-slate-300 rounded-xl p-4 flex justify-between items-center">
+                    <div>
+                        <span class="text-xs text-slate-500 font-semibold block">登入身份</span>
+                        <span class="text-base font-bold text-slate-800">隊長 / 管理員</span>
+                    </div>
+                    <div class="space-x-2">
+                        <button onclick="handleChangeCaptainPassword()" class="text-xs bg-indigo-600 hover:bg-indigo-700 text-white px-3 py-1.5 rounded-lg font-medium transition">修改隊長密碼</button>
+                        <button onclick="handleCaptainLogout()" class="text-xs bg-red-600 hover:bg-red-700 text-white px-3 py-1.5 rounded-lg font-medium transition">登出後台</button>
+                    </div>
+                </div>
+
+                <!-- 請假審核列表 -->
+                <div class="bg-white rounded-xl p-6 shadow-md border border-slate-200">
+                    <div class="flex justify-between items-center mb-4 border-b pb-2">
+                        <h2 class="text-lg font-bold text-slate-800">全隊請假申請清單</h2>
+                        <button onclick="clearAllData()" class="text-xs bg-red-100 hover:bg-red-200 text-red-700 px-3 py-1.5 rounded-md font-medium transition">清空所有紀錄</button>
+                    </div>
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-left border-collapse">
+                            <thead>
+                                <tr class="border-b bg-slate-50 text-slate-600 text-sm">
+                                    <th class="p-3">姓名</th>
+                                    <th class="p-3">請假日期</th>
+                                    <th class="p-3">原因</th>
+                                    <th class="p-3">申請時間</th>
+                                    <th class="p-3">狀態</th>
+                                    <th class="p-3 text-center">審核操作</th>
+                                </tr>
+                            </thead>
+                            <tbody id="captain-records-table" class="divide-y text-sm"></tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- 隊員帳號管理專區 -->
+                <div class="bg-white rounded-xl p-6 shadow-md border border-slate-200">
+                    <h2 class="text-lg font-bold text-slate-800 mb-4 border-b pb-2">隊員帳號管理與密碼重設</h2>
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-left border-collapse">
+                            <thead>
+                                <tr class="border-b bg-slate-50 text-slate-600 text-sm">
+                                    <th class="p-3">隊員姓名</th>
+                                    <th class="p-3">目前密碼</th>
+                                    <th class="p-3 text-center">帳號操作</th>
+                                </tr>
+                            </thead>
+                            <tbody id="captain-users-table" class="divide-y text-sm"></tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </main>
+
+    </div>
+
+    <script>
+        let currentMember = JSON.parse(sessionStorage.getItem('quiz_team_current_user') || 'null');
+        let isCaptainAuthenticated = false;
+
+        // 計算未來的下一個星期幾
+        function getNextDayOfWeek(targetDay) {
+            const today = new Date();
+            const result = new Date(today);
+            const currentDay = today.getDay();
+            
+            // 計算相差天數
+            let distance = (targetDay - currentDay + 7) % 7;
+            if (distance === 0) distance = 7; // 若今天剛好是該星期日，選下一個星期的該日
+            
+            result.setDate(today.getDate() + distance);
+            
+            const yyyy = result.getFullYear();
+            const mm = String(result.getMonth() + 1).padStart(2, '0');
+            const dd = String(result.getDate()).padStart(2, '0');
+            return `${yyyy}-${mm}-${dd}`;
+        }
+
+        // 初始化快捷日期按鈕的日期標籤
+        function initQuickDateButtons() {
+            const nextTue = getNextDayOfWeek(2); // 2 = 星期二
+            const nextFri = getNextDayOfWeek(5); // 5 = 星期五
+
+            const tueLabel = document.getElementById('label-next-tue');
+            const friLabel = document.getElementById('label-next-fri');
+
+            if (tueLabel) tueLabel.textContent = `(${nextTue})`;
+            if (friLabel) friLabel.textContent = `(${nextFri})`;
+        }
+
+        // 快捷鍵填入日期
+        function selectQuickDate(dayType) {
+            const dateInput = document.getElementById('leave-date');
+            if (dayType === 'tue') {
+                dateInput.value = getNextDayOfWeek(2);
+            } else if (dayType === 'fri') {
+                dateInput.value = getNextDayOfWeek(5);
+            }
+        }
+
+        // 頁面路由分流器 (Hash Router)
+        function handleRouting() {
+            const hash = window.location.hash || '#home';
+            const pageHome = document.getElementById('page-home');
+            const pageMember = document.getElementById('page-member');
+            const pageCaptain = document.getElementById('page-captain');
+            const navHomeBtn = document.getElementById('nav-home-btn');
+
+            pageHome.classList.add('hidden');
+            pageMember.classList.add('hidden');
+            pageCaptain.classList.add('hidden');
+
+            if (hash === '#member') {
+                pageMember.classList.remove('hidden');
+                navHomeBtn.classList.add('hidden'); // 隱藏頂部返回按鈕，防止隊員進入主頁
+                initQuickDateButtons(); // 初始化快捷按鈕提示
+                updateMemberUI();
+            } else if (hash === '#captain') {
+                pageCaptain.classList.remove('hidden');
+                navHomeBtn.classList.remove('hidden');
+                if (isCaptainAuthenticated) {
+                    renderCaptainRecords();
+                    renderCaptainUsers();
+                }
+            } else {
+                pageHome.classList.remove('hidden');
+                navHomeBtn.classList.add('hidden');
+            }
+        }
+
+        window.addEventListener('hashchange', handleRouting);
+        window.addEventListener('DOMContentLoaded', handleRouting);
+
+        // Helper 函式
+        function getStorage(key) { return JSON.parse(localStorage.getItem(key) || '[]'); }
+        function setStorage(key, data) { localStorage.setItem(key, JSON.stringify(data)); }
+
+        // --- 隊員端邏輯 ---
+        function handleForgotPassword() {
+            alert("【忘記密碼指引】\n\n請直接聯絡「問答隊隊長」！\n隊長可以在「隊長審核後台」的「隊員帳號管理」區，直接幫你重設密碼或查詢帳號。");
+        }
+
+        function handleMemberLogin(e) {
+            e.preventDefault();
+            const name = document.getElementById('login-name').value.trim();
+            const pwd = document.getElementById('login-pwd').value.trim();
+            const users = getStorage('quiz_team_users');
+            const existingUser = users.find(u => u.name === name);
+
+            if (existingUser && existingUser.pwd !== pwd) {
+                alert('密碼錯誤！如果忘記密碼，請點擊「忘記密碼？」聯絡隊長重設。');
+                return;
+            }
+            if (!existingUser) {
+                users.push({ name, pwd });
+                setStorage('quiz_team_users', users);
+            }
+
+            currentMember = { name };
+            sessionStorage.setItem('quiz_team_current_user', JSON.stringify(currentMember));
+            updateMemberUI();
+        }
+
+        function handleMemberLogout() {
+            currentMember = null;
+            sessionStorage.removeItem('quiz_team_current_user');
+            document.getElementById('login-name').value = '';
+            document.getElementById('login-pwd').value = '';
+            updateMemberUI();
+        }
+
+        function updateMemberUI() {
+            const authCard = document.getElementById('member-auth-card');
+            const dashboard = document.getElementById('member-dashboard');
+
+            if (currentMember) {
+                authCard.classList.add('hidden');
+                dashboard.classList.remove('hidden');
+                document.getElementById('current-user-display').textContent = currentMember.name;
+                renderMyRecords();
+            } else {
+                authCard.classList.remove('hidden');
+                dashboard.classList.add('hidden');
+            }
+        }
+
+        function handleFormSubmit(e) {
+            e.preventDefault();
+            const date = document.getElementById('leave-date').value;
+            const reason = document.getElementById('leave-reason').value;
+
+            const records = getStorage('quiz_team_leaves');
+            records.unshift({
+                id: Date.now(),
+                name: currentMember.name,
+                date,
+                reason,
+                timestamp: new Date().toLocaleString('zh-HK'),
+                status: '待處理'
+            });
+            setStorage('quiz_team_leaves', records);
+
+            document.getElementById('leave-form').reset();
+            const msg = document.getElementById('success-msg');
+            msg.classList.remove('hidden');
+            setTimeout(() => msg.classList.add('hidden'), 3000);
+            renderMyRecords();
+        }
+
+        function renderMyRecords() {
+            const records = getStorage('quiz_team_leaves');
+            const myRecords = records.filter(r => r.name === currentMember.name);
+            const tbody = document.getElementById('my-records-table');
+
+            if (myRecords.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="4" class="p-4 text-center text-slate-400">尚無個人請假紀錄</td></tr>`;
+                return;
+            }
+
+            tbody.innerHTML = myRecords.map(r => `
+                <tr class="hover:bg-slate-50">
+                    <td class="p-3 text-indigo-600 font-medium">${r.date}</td>
+                    <td class="p-3 text-slate-600">${r.reason}</td>
+                    <td class="p-3 text-xs text-slate-400">${r.timestamp}</td>
+                    <td class="p-3">${getStatusBadge(r.status)}</td>
+                </tr>
+            `).join('');
+        }
+
+        // --- 隊長端邏輯 ---
+        function getCaptainPassword() {
+            return localStorage.getItem('quiz_team_captain_pwd') || 'captain123';
+        }
+
+        function checkCaptainAuth() {
+            const pwd = document.getElementById('captain-pwd').value;
+            if (pwd === getCaptainPassword()) {
+                isCaptainAuthenticated = true;
+                document.getElementById('captain-auth-card').classList.add('hidden');
+                document.getElementById('captain-panel').classList.remove('hidden');
+                renderCaptainRecords();
+                renderCaptainUsers();
+            } else {
+                alert('密碼錯誤！');
+            }
+        }
+
+        function handleCaptainLogout() {
+            isCaptainAuthenticated = false;
+            document.getElementById('captain-pwd').value = '';
+            document.getElementById('captain-panel').classList.add('hidden');
+            document.getElementById('captain-auth-card').classList.remove('hidden');
+        }
+
+        function handleChangeCaptainPassword() {
+            const oldPwd = prompt('請輸入目前的隊長密碼：');
+            if (oldPwd === null) return;
+
+            if (oldPwd !== getCaptainPassword()) {
+                alert('舊密碼不正確！');
+                return;
+            }
+
+            const newPwd = prompt('請輸入新的隊長密碼：');
+            if (newPwd && newPwd.trim() !== '') {
+                localStorage.setItem('quiz_team_captain_pwd', newPwd.trim());
+                alert('隊長密碼修改成功！下次登入請使用新密碼。');
+            } else if (newPwd !== null) {
+                alert('密碼不能為空！');
+            }
+        }
+
+        function updateStatus(id, newStatus) {
+            const records = getStorage('quiz_team_leaves');
+            const record = records.find(r => r.id === id);
+            if (record) {
+                record.status = newStatus;
+                setStorage('quiz_team_leaves', records);
+                renderCaptainRecords();
+            }
+        }
+
+        function clearAllData() {
+            if (confirm('確定要清空所有隊員的請假紀錄嗎？')) {
+                localStorage.removeItem('quiz_team_leaves');
+                renderCaptainRecords();
+            }
+        }
+
+        function renderCaptainRecords() {
+            const records = getStorage('quiz_team_leaves');
+            const tbody = document.getElementById('captain-records-table');
+
+            if (records.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="6" class="p-4 text-center text-slate-400">目前尚無請假紀錄</td></tr>`;
+                return;
+            }
+
+            tbody.innerHTML = records.map(r => `
+                <tr class="hover:bg-slate-50">
+                    <td class="p-3 font-medium">${r.name}</td>
+                    <td class="p-3 text-indigo-600 font-medium">${r.date}</td>
+                    <td class="p-3 text-slate-600 max-w-xs truncate">${r.reason}</td>
+                    <td class="p-3 text-xs text-slate-400">${r.timestamp}</td>
+                    <td class="p-3">${getStatusBadge(r.status)}</td>
+                    <td class="p-3 text-center">
+                        <button onclick="updateStatus(${r.id}, '已批准')" class="text-xs bg-emerald-50 text-emerald-600 hover:bg-emerald-100 px-2 py-1 rounded mr-1">批准</button>
+                        <button onclick="updateStatus(${r.id}, '已駁回')" class="text-xs bg-rose-50 text-rose-600 hover:bg-rose-100 px-2 py-1 rounded">駁回</button>
+                    </td>
+                </tr>
+            `).join('');
+        }
+
+        function renderCaptainUsers() {
+            const users = getStorage('quiz_team_users');
+            const tbody = document.getElementById('captain-users-table');
+
+            if (users.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="3" class="p-4 text-center text-slate-400">尚無註冊隊員帳號</td></tr>`;
+                return;
+            }
+
+            tbody.innerHTML = users.map(u => `
+                <tr class="hover:bg-slate-50">
+                    <td class="p-3 font-medium text-slate-800">${u.name}</td>
+                    <td class="p-3 font-mono text-slate-500">${u.pwd}</td>
+                    <td class="p-3 text-center space-x-1">
+                        <button onclick="resetUserPassword('${u.name}')" class="text-xs bg-indigo-50 text-indigo-600 hover:bg-indigo-100 px-2 py-1 rounded">重設密碼</button>
+                        <button onclick="deleteUser('${u.name}')" class="text-xs bg-red-50 text-red-600 hover:bg-red-100 px-2 py-1 rounded">刪除帳號</button>
+                    </td>
+                </tr>
+            `).join('');
+        }
+
+        function resetUserPassword(userName) {
+            const newPwd = prompt(`請輸入隊員【${userName}】的新密碼：`);
+            if (newPwd !== null && newPwd.trim() !== '') {
+                const users = getStorage('quiz_team_users');
+                const user = users.find(u => u.name === userName);
+                if (user) {
+                    user.pwd = newPwd.trim();
+                    setStorage('quiz_team_users', users);
+                    alert(`已成功將【${userName}】的密碼更新為：${newPwd.trim()}`);
+                    renderCaptainUsers();
+                }
+            }
+        }
+
+        function deleteUser(userName) {
+            if (confirm(`確定要刪除隊員【${userName}】的帳號嗎？`)) {
+                let users = getStorage('quiz_team_users');
+                users = users.filter(u => u.name !== userName);
+                setStorage('quiz_team_users', users);
+                renderCaptainUsers();
+            }
+        }
+
+        function getStatusBadge(status) {
+            if (status === '已批准') return `<span class="px-2 py-1 text-xs rounded-full bg-emerald-100 text-emerald-800">已批准</span>`;
+            if (status === '已駁回') return `<span class="px-2 py-1 text-xs rounded-full bg-rose-100 text-rose-800">已駁回</span>`;
+            return `<span class="px-2 py-1 text-xs rounded-full bg-amber-100 text-amber-800">待處理</span>`;
+        }
+    </script>
+</body>
+</html>
