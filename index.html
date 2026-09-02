@@ -42,17 +42,17 @@
                     </div>
                 </a>
 
-                <!-- 隊長入口卡片 -->
+                <!-- 管理團隊入口卡片（隊長/老師/教練） -->
                 <a href="#captain" class="group bg-white p-6 rounded-2xl shadow-md border border-slate-200 hover:shadow-xl hover:border-slate-700 transition duration-300 flex flex-col justify-between">
                     <div>
                         <div class="w-12 h-12 bg-slate-100 text-slate-700 rounded-xl flex items-center justify-center text-2xl font-bold mb-4 group-hover:scale-110 transition">
                             🛡️
                         </div>
-                        <h2 class="text-xl font-bold text-slate-800 group-hover:text-slate-900 transition">隊長審核端</h2>
-                        <p class="text-slate-500 text-xs mt-2 leading-relaxed">隊長專屬管理後台，審核全隊請假申請、處理狀態變更及管理隊員帳號重設密碼。</p>
+                        <h2 class="text-xl font-bold text-slate-800 group-hover:text-slate-900 transition">管理審核端</h2>
+                        <p class="text-slate-500 text-xs mt-2 leading-relaxed">隊長、老師及教練專屬管理後台，審核全隊請假申請、篩選資料、匯出報表及備份系統資料。</p>
                     </div>
                     <div class="mt-6 flex items-center text-slate-700 font-semibold text-sm">
-                        進入隊長端 <span class="ml-1 group-hover:translate-x-1 transition">→</span>
+                        進入管理端（隊長/老師/教練） <span class="ml-1 group-hover:translate-x-1 transition">→</span>
                     </div>
                 </a>
             </div>
@@ -73,7 +73,7 @@
                 <form onsubmit="handleMemberLogin(event)" class="space-y-4">
                     <div>
                         <label class="block text-sm font-semibold text-slate-700 mb-1">隊員姓名</label>
-                        <input type="text" id="login-name" required placeholder="例如：張小明" class="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-indigo-500 focus:outline-none">
+                        <input type="text" id="login-name" required placeholder="例如：溫幾落" class="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-indigo-500 focus:outline-none">
                     </div>
                     <div>
                         <div class="flex justify-between items-center mb-1">
@@ -99,6 +99,17 @@
                 <div class="bg-white rounded-xl p-6 shadow-md border border-slate-200">
                     <h2 class="text-lg font-bold text-slate-800 mb-4 border-b pb-2">填寫請假單</h2>
                     <form id="leave-form" onsubmit="handleFormSubmit(event)" class="space-y-4">
+                        
+                        <!-- 請假類別選擇 -->
+                        <div>
+                            <label class="block text-sm font-semibold text-slate-700 mb-1">請假類別</label>
+                            <select id="leave-type" onchange="handleLeaveTypeChange()" class="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-indigo-500 focus:outline-none bg-white">
+                                <option value="事假">事假</option>
+                                <option value="病假">病假</option>
+                            </select>
+                        </div>
+
+                        <!-- 請假日期 -->
                         <div>
                             <label class="block text-sm font-semibold text-slate-700 mb-1">請假日期</label>
                             
@@ -116,10 +127,14 @@
                             <input type="date" id="leave-date" required class="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-indigo-500 focus:outline-none bg-white">
                         </div>
 
+                        <!-- 請假原因欄位 -->
                         <div>
-                            <label class="block text-sm font-semibold text-slate-700 mb-1">請假原因</label>
-                            <textarea id="leave-reason" rows="3" required placeholder="請說明請假原因（如：病假、補習、家中有事）" class="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-indigo-500 focus:outline-none"></textarea>
+                            <label class="block text-sm font-semibold text-slate-700 mb-1">
+                                請假原因 <span id="reason-required-tag" class="text-red-500">*</span>
+                            </label>
+                            <textarea id="leave-reason" rows="3" required placeholder="請說明請假原因（如：補習、家中有事、比賽衝突）" class="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-indigo-500 focus:outline-none"></textarea>
                         </div>
+
                         <button type="submit" class="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-semibold py-2.5 rounded-lg shadow transition">遞交申請</button>
                     </form>
                     <div id="success-msg" class="hidden mt-4 p-3 bg-emerald-100 text-emerald-800 rounded-lg text-center font-medium">
@@ -133,6 +148,7 @@
                         <table class="w-full text-left border-collapse">
                             <thead>
                                 <tr class="border-b bg-slate-50 text-slate-600 text-sm">
+                                    <th class="p-3">類別</th>
                                     <th class="p-3">請假日期</th>
                                     <th class="p-3">原因</th>
                                     <th class="p-3">遞交時間</th>
@@ -147,50 +163,92 @@
         </main>
 
 
-        <!-- ==================== 頁面 2：隊長審核端 (#captain) ==================== -->
+        <!-- ==================== 頁面 2：管理團隊審核端 (#captain) ==================== -->
         <main id="page-captain" class="space-y-6 hidden">
             <header class="bg-slate-800 text-white rounded-xl p-6 shadow-md flex justify-between items-center">
                 <div>
-                    <h1 class="text-2xl font-bold">隊長審核管理後台</h1>
-                    <p class="text-slate-300 text-sm mt-1">審核隊員請假申請與管理隊員帳號</p>
+                    <h1 class="text-2xl font-bold">管理團隊審核後台</h1>
+                    <p class="text-slate-300 text-sm mt-1">供隊長、老師及教練審核隊員請假申請與管理隊員帳號</p>
                 </div>
                 <a href="#home" class="text-xs bg-slate-700 hover:bg-slate-600 text-white px-3 py-1.5 rounded-lg transition">返回主頁</a>
             </header>
 
-            <!-- 隊長驗證卡片 -->
+            <!-- 管理身份驗證卡片 -->
             <div id="captain-auth-card" class="bg-white rounded-xl p-6 shadow-md border border-slate-200 max-w-md mx-auto text-center">
-                <h2 class="text-xl font-bold text-slate-800 mb-4">隊長身份驗證</h2>
+                <h2 class="text-xl font-bold text-slate-800 mb-4">管理人員身份驗證</h2>
                 <div class="flex gap-2">
-                    <input type="password" id="captain-pwd" placeholder="輸入隊長密碼" class="px-4 py-2 border rounded-lg focus:ring-2 focus:ring-slate-500 focus:outline-none flex-1">
+                    <input type="password" id="captain-pwd" placeholder="輸入管理密碼" class="px-4 py-2 border rounded-lg focus:ring-2 focus:ring-slate-500 focus:outline-none flex-1">
                     <button onclick="checkCaptainAuth()" class="bg-slate-800 text-white px-4 py-2 rounded-lg font-medium hover:bg-slate-900 transition">登入</button>
                 </div>
             </div>
 
-            <!-- 隊長審核控制台 -->
+            <!-- 管理員審核控制台 -->
             <div id="captain-panel" class="hidden space-y-6">
-                <!-- 隊長功能列 -->
+                <!-- 管理員功能列 -->
                 <div class="bg-slate-200 border border-slate-300 rounded-xl p-4 flex justify-between items-center">
                     <div>
                         <span class="text-xs text-slate-500 font-semibold block">登入身份</span>
-                        <span class="text-base font-bold text-slate-800">隊長 / 管理員</span>
+                        <span class="text-base font-bold text-slate-800">隊長 / 老師 / 教練</span>
                     </div>
                     <div class="space-x-2">
-                        <button onclick="handleChangeCaptainPassword()" class="text-xs bg-indigo-600 hover:bg-indigo-700 text-white px-3 py-1.5 rounded-lg font-medium transition">修改隊長密碼</button>
+                        <button onclick="handleChangeCaptainPassword()" class="text-xs bg-indigo-600 hover:bg-indigo-700 text-white px-3 py-1.5 rounded-lg font-medium transition">修改管理密碼</button>
                         <button onclick="handleCaptainLogout()" class="text-xs bg-red-600 hover:bg-red-700 text-white px-3 py-1.5 rounded-lg font-medium transition">登出後台</button>
                     </div>
                 </div>
 
-                <!-- 請假審核列表 -->
+                <!-- 請假審核與搜尋清單 -->
                 <div class="bg-white rounded-xl p-6 shadow-md border border-slate-200">
-                    <div class="flex justify-between items-center mb-4 border-b pb-2">
+                    <div class="flex flex-col sm:flex-row justify-between sm:items-center gap-3 mb-4 border-b pb-3">
                         <h2 class="text-lg font-bold text-slate-800">全隊請假申請清單</h2>
-                        <button onclick="clearAllData()" class="text-xs bg-red-100 hover:bg-red-200 text-red-700 px-3 py-1.5 rounded-md font-medium transition">清空所有紀錄</button>
+                        <div class="flex flex-wrap gap-2">
+                            <button onclick="exportCSV()" class="text-xs bg-emerald-600 hover:bg-emerald-700 text-white px-3 py-1.5 rounded-md font-medium transition flex items-center gap-1">
+                                📊 匯出 CSV 表格
+                            </button>
+                            <button onclick="clearAllData()" class="text-xs bg-red-100 hover:bg-red-200 text-red-700 px-3 py-1.5 rounded-md font-medium transition">
+                                清空所有紀錄
+                            </button>
+                        </div>
                     </div>
+
+                    <!-- 搜尋與篩選器面板 -->
+                    <div class="bg-slate-50 p-4 rounded-xl border border-slate-200 mb-4 space-y-3">
+                        <div class="text-xs font-bold text-slate-500 uppercase tracking-wider">搜尋與篩選條件</div>
+                        <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-3">
+                            <div>
+                                <label class="block text-xs font-medium text-slate-600 mb-1">審核狀態</label>
+                                <select id="filter-status" onchange="renderCaptainRecords()" class="w-full text-xs px-3 py-2 border rounded-lg focus:ring-1 focus:ring-slate-500 focus:outline-none bg-white">
+                                    <option value="ALL">全部狀態</option>
+                                    <option value="待處理">待處理</option>
+                                    <option value="已批准">已批准</option>
+                                    <option value="已駁回">已駁回</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label class="block text-xs font-medium text-slate-600 mb-1">隊員姓名</label>
+                                <input type="text" id="filter-name" oninput="renderCaptainRecords()" placeholder="搜尋姓名..." class="w-full text-xs px-3 py-2 border rounded-lg focus:ring-1 focus:ring-slate-500 focus:outline-none bg-white">
+                            </div>
+                            <div>
+                                <label class="block text-xs font-medium text-slate-600 mb-1">開始日期</label>
+                                <input type="date" id="filter-start-date" onchange="renderCaptainRecords()" class="w-full text-xs px-3 py-2 border rounded-lg focus:ring-1 focus:ring-slate-500 focus:outline-none bg-white">
+                            </div>
+                            <div>
+                                <label class="block text-xs font-medium text-slate-600 mb-1">結束日期</label>
+                                <input type="date" id="filter-end-date" onchange="renderCaptainRecords()" class="w-full text-xs px-3 py-2 border rounded-lg focus:ring-1 focus:ring-slate-500 focus:outline-none bg-white">
+                            </div>
+                        </div>
+                        <div class="flex justify-between items-center pt-1 text-xs text-slate-500">
+                            <span id="filter-result-count">顯示 0 筆紀錄</span>
+                            <button onclick="resetFilters()" class="hover:text-slate-800 underline">重設篩選條件</button>
+                        </div>
+                    </div>
+
+                    <!-- 假單表格 -->
                     <div class="overflow-x-auto">
                         <table class="w-full text-left border-collapse">
                             <thead>
                                 <tr class="border-b bg-slate-50 text-slate-600 text-sm">
                                     <th class="p-3">姓名</th>
+                                    <th class="p-3">類別</th>
                                     <th class="p-3">請假日期</th>
                                     <th class="p-3">原因</th>
                                     <th class="p-3">申請時間</th>
@@ -219,6 +277,22 @@
                         </table>
                     </div>
                 </div>
+
+                <!-- 系統資料備份與還原專區 -->
+                <div class="bg-white rounded-xl p-6 shadow-md border border-slate-200">
+                    <h2 class="text-lg font-bold text-slate-800 mb-2">系統資料備份與還原</h2>
+                    <p class="text-xs text-slate-500 mb-4">定期下載 JSON 備份檔可防止瀏覽器清除紀錄或更換電腦時遺失資料。</p>
+                    <div class="flex flex-wrap gap-3">
+                        <button onclick="exportBackupJSON()" class="text-xs bg-slate-800 hover:bg-slate-900 text-white px-4 py-2 rounded-lg font-medium transition flex items-center gap-1.5">
+                            📥 匯出系統備份檔 (.json)
+                        </button>
+                        <button onclick="triggerImportJSON()" class="text-xs bg-slate-100 hover:bg-slate-200 text-slate-700 border border-slate-300 px-4 py-2 rounded-lg font-medium transition flex items-center gap-1.5">
+                            📤 匯入備份檔 (.json)
+                        </button>
+                        <input type="file" id="import-json-file" accept=".json" onchange="handleImportJSON(event)" class="hidden">
+                    </div>
+                </div>
+
             </div>
         </main>
 
@@ -234,9 +308,8 @@
             const result = new Date(today);
             const currentDay = today.getDay();
             
-            // 計算相差天數
             let distance = (targetDay - currentDay + 7) % 7;
-            if (distance === 0) distance = 7; // 若今天剛好是該星期日，選下一個星期的該日
+            if (distance === 0) distance = 7;
             
             result.setDate(today.getDate() + distance);
             
@@ -246,10 +319,10 @@
             return `${yyyy}-${mm}-${dd}`;
         }
 
-        // 初始化快捷日期按鈕的日期標籤
+        // 初始化快捷日期按鈕標籤
         function initQuickDateButtons() {
-            const nextTue = getNextDayOfWeek(2); // 2 = 星期二
-            const nextFri = getNextDayOfWeek(5); // 5 = 星期五
+            const nextTue = getNextDayOfWeek(2);
+            const nextFri = getNextDayOfWeek(5);
 
             const tueLabel = document.getElementById('label-next-tue');
             const friLabel = document.getElementById('label-next-fri');
@@ -258,7 +331,7 @@
             if (friLabel) friLabel.textContent = `(${nextFri})`;
         }
 
-        // 快捷鍵填入日期
+        // 快捷填寫日期
         function selectQuickDate(dayType) {
             const dateInput = document.getElementById('leave-date');
             if (dayType === 'tue') {
@@ -268,7 +341,24 @@
             }
         }
 
-        // 頁面路由分流器 (Hash Router)
+        // 切換請假類別（病假可免填詳細原因）
+        function handleLeaveTypeChange() {
+            const type = document.getElementById('leave-type').value;
+            const reasonInput = document.getElementById('leave-reason');
+            const tag = document.getElementById('reason-required-tag');
+
+            if (type === '病假') {
+                reasonInput.required = false;
+                reasonInput.placeholder = '（選填）請說明身體狀況或備註';
+                if (tag) tag.classList.add('hidden');
+            } else {
+                reasonInput.required = true;
+                reasonInput.placeholder = '請說明請假原因（如：補習、家中有事、比賽衝突）';
+                if (tag) tag.classList.remove('hidden');
+            }
+        }
+
+        // 頁面路由分流器
         function handleRouting() {
             const hash = window.location.hash || '#home';
             const pageHome = document.getElementById('page-home');
@@ -282,8 +372,8 @@
 
             if (hash === '#member') {
                 pageMember.classList.remove('hidden');
-                navHomeBtn.classList.add('hidden'); // 隱藏頂部返回按鈕，防止隊員進入主頁
-                initQuickDateButtons(); // 初始化快捷按鈕提示
+                navHomeBtn.classList.add('hidden');
+                initQuickDateButtons();
                 updateMemberUI();
             } else if (hash === '#captain') {
                 pageCaptain.classList.remove('hidden');
@@ -301,13 +391,13 @@
         window.addEventListener('hashchange', handleRouting);
         window.addEventListener('DOMContentLoaded', handleRouting);
 
-        // Helper 函式
+        // Storage Helper
         function getStorage(key) { return JSON.parse(localStorage.getItem(key) || '[]'); }
         function setStorage(key, data) { localStorage.setItem(key, JSON.stringify(data)); }
 
         // --- 隊員端邏輯 ---
         function handleForgotPassword() {
-            alert("【忘記密碼指引】\n\n請直接聯絡「問答隊隊長」！\n隊長可以在「隊長審核後台」的「隊員帳號管理」區，直接幫你重設密碼或查詢帳號。");
+            alert("【忘記密碼指引】\n\n請直接聯絡隊長、老師或教練！");
         }
 
         function handleMemberLogin(e) {
@@ -318,12 +408,13 @@
             const existingUser = users.find(u => u.name === name);
 
             if (existingUser && existingUser.pwd !== pwd) {
-                alert('密碼錯誤！如果忘記密碼，請點擊「忘記密碼？」聯絡隊長重設。');
+                alert('密碼錯誤！如果忘記密碼，請點擊「忘記密碼？」聯絡管理團隊重設。');
                 return;
             }
             if (!existingUser) {
                 users.push({ name, pwd });
                 setStorage('quiz_team_users', users);
+                alert('註冊成功！');
             }
 
             currentMember = { name };
@@ -356,13 +447,19 @@
 
         function handleFormSubmit(e) {
             e.preventDefault();
+            const type = document.getElementById('leave-type').value;
             const date = document.getElementById('leave-date').value;
-            const reason = document.getElementById('leave-reason').value;
+            let reason = document.getElementById('leave-reason').value.trim();
+
+            if (type === '病假' && !reason) {
+                reason = '身體不適 / 病假';
+            }
 
             const records = getStorage('quiz_team_leaves');
             records.unshift({
                 id: Date.now(),
                 name: currentMember.name,
+                type: type,
                 date,
                 reason,
                 timestamp: new Date().toLocaleString('zh-HK'),
@@ -371,6 +468,7 @@
             setStorage('quiz_team_leaves', records);
 
             document.getElementById('leave-form').reset();
+            handleLeaveTypeChange(); // 重置欄位狀態
             const msg = document.getElementById('success-msg');
             msg.classList.remove('hidden');
             setTimeout(() => msg.classList.add('hidden'), 3000);
@@ -383,12 +481,13 @@
             const tbody = document.getElementById('my-records-table');
 
             if (myRecords.length === 0) {
-                tbody.innerHTML = `<tr><td colspan="4" class="p-4 text-center text-slate-400">尚無個人請假紀錄</td></tr>`;
+                tbody.innerHTML = `<tr><td colspan="5" class="p-4 text-center text-slate-400">尚無個人請假紀錄</td></tr>`;
                 return;
             }
 
             tbody.innerHTML = myRecords.map(r => `
                 <tr class="hover:bg-slate-50">
+                    <td class="p-3">${getTypeBadge(r.type)}</td>
                     <td class="p-3 text-indigo-600 font-medium">${r.date}</td>
                     <td class="p-3 text-slate-600">${r.reason}</td>
                     <td class="p-3 text-xs text-slate-400">${r.timestamp}</td>
@@ -397,7 +496,7 @@
             `).join('');
         }
 
-        // --- 隊長端邏輯 ---
+        // --- 管理團隊（隊長/老師/教練）端邏輯 ---
         function getCaptainPassword() {
             return localStorage.getItem('quiz_team_captain_pwd') || 'captain123';
         }
@@ -423,7 +522,7 @@
         }
 
         function handleChangeCaptainPassword() {
-            const oldPwd = prompt('請輸入目前的隊長密碼：');
+            const oldPwd = prompt('請輸入目前的管理密碼：');
             if (oldPwd === null) return;
 
             if (oldPwd !== getCaptainPassword()) {
@@ -431,13 +530,38 @@
                 return;
             }
 
-            const newPwd = prompt('請輸入新的隊長密碼：');
+            const newPwd = prompt('請輸入新的管理密碼：');
             if (newPwd && newPwd.trim() !== '') {
                 localStorage.setItem('quiz_team_captain_pwd', newPwd.trim());
-                alert('隊長密碼修改成功！下次登入請使用新密碼。');
+                alert('管理密碼修改成功！下次登入請使用新密碼。');
             } else if (newPwd !== null) {
                 alert('密碼不能為空！');
             }
+        }
+
+        // 取得經過搜尋條件過濾後的請假紀錄
+        function getFilteredRecords() {
+            const records = getStorage('quiz_team_leaves');
+            const statusFilter = document.getElementById('filter-status') ? document.getElementById('filter-status').value : 'ALL';
+            const nameFilter = document.getElementById('filter-name') ? document.getElementById('filter-name').value.trim().toLowerCase() : '';
+            const startDate = document.getElementById('filter-start-date') ? document.getElementById('filter-start-date').value : '';
+            const endDate = document.getElementById('filter-end-date') ? document.getElementById('filter-end-date').value : '';
+
+            return records.filter(r => {
+                if (statusFilter !== 'ALL' && r.status !== statusFilter) return false;
+                if (nameFilter && !(r.name || '').toLowerCase().includes(nameFilter)) return false;
+                if (startDate && r.date < startDate) return false;
+                if (endDate && r.date > endDate) return false;
+                return true;
+            });
+        }
+
+        function resetFilters() {
+            if(document.getElementById('filter-status')) document.getElementById('filter-status').value = 'ALL';
+            if(document.getElementById('filter-name')) document.getElementById('filter-name').value = '';
+            if(document.getElementById('filter-start-date')) document.getElementById('filter-start-date').value = '';
+            if(document.getElementById('filter-end-date')) document.getElementById('filter-end-date').value = '';
+            renderCaptainRecords();
         }
 
         function updateStatus(id, newStatus) {
@@ -451,24 +575,30 @@
         }
 
         function clearAllData() {
-            if (confirm('確定要清空所有隊員的請假紀錄嗎？')) {
+            if (confirm('確定要清空所有隊員的請假紀錄嗎？此動作不可撤銷！')) {
                 localStorage.removeItem('quiz_team_leaves');
                 renderCaptainRecords();
             }
         }
 
         function renderCaptainRecords() {
-            const records = getStorage('quiz_team_leaves');
+            const filteredRecords = getFilteredRecords();
             const tbody = document.getElementById('captain-records-table');
+            const countDisplay = document.getElementById('filter-result-count');
 
-            if (records.length === 0) {
-                tbody.innerHTML = `<tr><td colspan="6" class="p-4 text-center text-slate-400">目前尚無請假紀錄</td></tr>`;
+            if (countDisplay) {
+                countDisplay.textContent = `顯示 ${filteredRecords.length} 筆紀錄`;
+            }
+
+            if (filteredRecords.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="7" class="p-4 text-center text-slate-400">沒有符合條件的請假紀錄</td></tr>`;
                 return;
             }
 
-            tbody.innerHTML = records.map(r => `
+            tbody.innerHTML = filteredRecords.map(r => `
                 <tr class="hover:bg-slate-50">
                     <td class="p-3 font-medium">${r.name}</td>
+                    <td class="p-3">${getTypeBadge(r.type)}</td>
                     <td class="p-3 text-indigo-600 font-medium">${r.date}</td>
                     <td class="p-3 text-slate-600 max-w-xs truncate">${r.reason}</td>
                     <td class="p-3 text-xs text-slate-400">${r.timestamp}</td>
@@ -523,6 +653,99 @@
                 setStorage('quiz_team_users', users);
                 renderCaptainUsers();
             }
+        }
+
+        // 匯出 CSV 功能（加上 BOM 防止 Excel 中文亂碼）
+        function exportCSV() {
+            const records = getFilteredRecords();
+            if (records.length === 0) {
+                alert('目前沒有可供匯出的請假紀錄！');
+                return;
+            }
+
+            let csv = '隊員姓名,請假類別,請假日期,請假原因,遞交時間,審核狀態\n';
+            records.forEach(r => {
+                const name = `"${(r.name || '').replace(/"/g, '""')}"`;
+                const type = `"${(r.type || '事假').replace(/"/g, '""')}"`;
+                const date = `"${(r.date || '').replace(/"/g, '""')}"`;
+                const reason = `"${(r.reason || '').replace(/"/g, '""')}"`;
+                const timestamp = `"${(r.timestamp || '').replace(/"/g, '""')}"`;
+                const status = `"${(r.status || '').replace(/"/g, '""')}"`;
+                csv += `${name},${type},${date},${reason},${timestamp},${status}\n`;
+            });
+
+            const blob = new Blob(['\uFEFF' + csv], { type: 'text/csv;charset=utf-8;' });
+            const url = URL.createObjectURL(blob);
+            const link = document.createElement('a');
+            link.href = url;
+            const todayStr = new Date().toISOString().slice(0, 10).replace(/-/g, '');
+            link.download = `問答隊請假紀錄_${todayStr}.csv`;
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+        }
+
+        // 匯出系統備份檔 JSON
+        function exportBackupJSON() {
+            const backupData = {
+                quiz_team_leaves: getStorage('quiz_team_leaves'),
+                quiz_team_users: getStorage('quiz_team_users'),
+                quiz_team_captain_pwd: localStorage.getItem('quiz_team_captain_pwd') || 'captain123',
+                exportAt: new Date().toLocaleString('zh-HK')
+            };
+
+            const jsonStr = JSON.stringify(backupData, null, 2);
+            const blob = new Blob([jsonStr], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            const link = document.createElement('a');
+            link.href = url;
+            const todayStr = new Date().toISOString().slice(0, 10).replace(/-/g, '');
+            link.download = `問答隊系統備份_${todayStr}.json`;
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+        }
+
+        function triggerImportJSON() {
+            document.getElementById('import-json-file').click();
+        }
+
+        // 匯入備份檔 JSON
+        function handleImportJSON(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                try {
+                    const data = JSON.parse(e.target.result);
+                    if (!data.quiz_team_leaves || !data.quiz_team_users) {
+                        alert('備份檔案格式無效，找不到請假紀錄或隊員資料！');
+                        return;
+                    }
+
+                    if (confirm(`確定要匯入此備份檔嗎？（備份時間：${data.exportAt || '未知'}）\n注意：這將會覆蓋現有的請假紀錄與隊員帳號！`)) {
+                        setStorage('quiz_team_leaves', data.quiz_team_leaves);
+                        setStorage('quiz_team_users', data.quiz_team_users);
+                        if (data.quiz_team_captain_pwd) {
+                            localStorage.setItem('quiz_team_captain_pwd', data.quiz_team_captain_pwd);
+                        }
+                        alert('系統資料已成功還原！');
+                        renderCaptainRecords();
+                        renderCaptainUsers();
+                    }
+                } catch (err) {
+                    alert('解析檔案失敗，請確定上傳的是有效的 JSON 備份檔。');
+                }
+                event.target.value = '';
+            };
+            reader.readAsText(file);
+        }
+
+        // Helper: Badge 樣式渲染
+        function getTypeBadge(type) {
+            if (type === '病假') return `<span class="px-2 py-0.5 text-xs rounded border bg-amber-50 text-amber-700 border-amber-200 font-medium">病假</span>`;
+            return `<span class="px-2 py-0.5 text-xs rounded border bg-indigo-50 text-indigo-700 border-indigo-200 font-medium">事假</span>`;
         }
 
         function getStatusBadge(status) {
