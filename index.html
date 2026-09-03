@@ -66,13 +66,13 @@
                 <p class="text-indigo-200 text-sm mt-1">遞交請假申請及查詢個人審核紀錄</p>
             </header>
 
-            <!-- 隊員登入/註冊卡片 -->
+            <!-- 步驟 A：隊員登入/註冊卡片 -->
             <div id="member-auth-card" class="bg-white rounded-xl p-6 shadow-md border border-slate-200 max-w-md mx-auto">
                 <h2 class="text-xl font-bold text-slate-800 mb-2 text-center">隊員帳號登入</h2>
-                <p class="text-xs text-slate-500 mb-4 text-center">首次使用輸入姓名與密碼即可完成註冊</p>
+                <p class="text-xs text-slate-500 mb-4 text-center">首次使用輸入姓名與密碼即可開始註冊流程</p>
                 <form onsubmit="handleMemberLogin(event)" class="space-y-4">
                     <div>
-                        <label class="block text-sm font-semibold text-slate-700 mb-1">隊員姓名（必須與香港特別行政區永久性居民身份證一致）</label>
+                        <label class="block text-sm font-semibold text-slate-700 mb-1">登入名稱（必須與香港特別行政區永久性居民身份證一致）</label>
                         <input type="text" id="login-name" required placeholder="例如：溫幾落" class="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-indigo-500 focus:outline-none">
                     </div>
                     <div>
@@ -83,6 +83,30 @@
                         <input type="password" id="login-pwd" required placeholder="請設定或輸入密碼" class="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-indigo-500 focus:outline-none">
                     </div>
                     <button type="submit" class="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-semibold py-2.5 rounded-lg shadow transition">登入 / 註冊</button>
+                </form>
+            </div>
+
+            <!-- 步驟 B：首次註冊選擇年級卡片 -->
+            <div id="member-grade-card" class="bg-white rounded-xl p-6 shadow-md border border-slate-200 max-w-md mx-auto hidden">
+                <div class="text-center mb-4">
+                    <span class="inline-block px-3 py-1 bg-indigo-100 text-indigo-700 text-xs font-semibold rounded-full mb-2">首次註冊步驟 2/2</span>
+                    <h2 class="text-xl font-bold text-slate-800">請選擇您的年級</h2>
+                    <p class="text-xs text-slate-500 mt-1">設定年級以便管理團隊（隊長/老師/教練）進行身份核對</p>
+                </div>
+                <form onsubmit="handleGradeSubmit(event)" class="space-y-4">
+                    <div>
+                        <label class="block text-sm font-semibold text-slate-700 mb-1">就讀年級</label>
+                        <select id="register-grade" required class="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-indigo-500 focus:outline-none bg-white">
+                            <option value="" disabled selected>請選擇年級</option>
+                            <option value="中一">中一</option>
+                            <option value="中二">中二</option>
+                            <option value="中三">中三</option>
+                            <option value="中四">中四</option>
+                            <option value="中五">中五</option>
+                            <option value="中六">中六</option>
+                        </select>
+                    </div>
+                    <button type="submit" class="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-semibold py-2.5 rounded-lg shadow transition">完成註冊並登入</button>
                 </form>
             </div>
 
@@ -213,7 +237,7 @@
                     <!-- 搜尋與篩選器面板 -->
                     <div class="bg-slate-50 p-4 rounded-xl border border-slate-200 mb-4 space-y-3">
                         <div class="text-xs font-bold text-slate-500 uppercase tracking-wider">搜尋與篩選條件</div>
-                        <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-3">
+                        <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-5 gap-3">
                             <div>
                                 <label class="block text-xs font-medium text-slate-600 mb-1">審核狀態</label>
                                 <select id="filter-status" onchange="renderCaptainRecords()" class="w-full text-xs px-3 py-2 border rounded-lg focus:ring-1 focus:ring-slate-500 focus:outline-none bg-white">
@@ -224,8 +248,22 @@
                                 </select>
                             </div>
                             <div>
+                                <label class="block text-xs font-medium text-slate-600 mb-1">隊員年級</label>
+                                <select id="filter-grade" onchange="renderCaptainRecords()" class="w-full text-xs px-3 py-2 border rounded-lg focus:ring-1 focus:ring-slate-500 focus:outline-none bg-white">
+                                    <option value="ALL">全部年級</option>
+                                    <option value="中一">中一</option>
+                                    <option value="中二">中二</option>
+                                    <option value="中三">中三</option>
+                                    <option value="中四">中四</option>
+                                    <option value="中五">中五</option>
+                                    <option value="中六">中六</option>
+                                </select>
+                            </div>
+                            <div>
                                 <label class="block text-xs font-medium text-slate-600 mb-1">隊員姓名</label>
-                                <input type="text" id="filter-name" oninput="renderCaptainRecords()" placeholder="搜尋姓名..." class="w-full text-xs px-3 py-2 border rounded-lg focus:ring-1 focus:ring-slate-500 focus:outline-none bg-white">
+                                <select id="filter-name" onchange="renderCaptainRecords()" class="w-full text-xs px-3 py-2 border rounded-lg focus:ring-1 focus:ring-slate-500 focus:outline-none bg-white">
+                                    <option value="ALL">全部隊員</option>
+                                </select>
                             </div>
                             <div>
                                 <label class="block text-xs font-medium text-slate-600 mb-1">開始日期</label>
@@ -248,6 +286,7 @@
                             <thead>
                                 <tr class="border-b bg-slate-50 text-slate-600 text-sm">
                                     <th class="p-3">姓名</th>
+                                    <th class="p-3">年級</th>
                                     <th class="p-3">類別</th>
                                     <th class="p-3">請假日期</th>
                                     <th class="p-3">原因</th>
@@ -269,6 +308,7 @@
                             <thead>
                                 <tr class="border-b bg-slate-50 text-slate-600 text-sm">
                                     <th class="p-3">隊員姓名</th>
+                                    <th class="p-3">就讀年級</th>
                                     <th class="p-3">目前密碼</th>
                                     <th class="p-3 text-center">帳號操作</th>
                                 </tr>
@@ -300,6 +340,7 @@
 
     <script>
         let currentMember = JSON.parse(sessionStorage.getItem('quiz_team_current_user') || 'null');
+        let pendingUser = null; // 暫存註冊帳密
         let isCaptainAuthenticated = false;
 
         // 計算未來的下一個星期幾
@@ -379,6 +420,7 @@
                 pageCaptain.classList.remove('hidden');
                 navHomeBtn.classList.remove('hidden');
                 if (isCaptainAuthenticated) {
+                    populateCaptainNameFilter();
                     renderCaptainRecords();
                     renderCaptainUsers();
                 }
@@ -411,36 +453,94 @@
                 alert('密碼錯誤！如果忘記密碼，請點擊「忘記密碼？」聯絡管理團隊重設。');
                 return;
             }
+
+            // 首次註冊：彈到下一頁選擇年級
             if (!existingUser) {
-                users.push({ name, pwd });
-                setStorage('quiz_team_users', users);
-                alert('註冊成功！');
+                pendingUser = { name, pwd };
+                alert('註冊成功！請選擇您的年級。');
+                document.getElementById('member-auth-card').classList.add('hidden');
+                document.getElementById('member-grade-card').classList.remove('hidden');
+                return;
             }
 
-            currentMember = { name };
+            // 已有帳號直接登入
+            currentMember = { name: existingUser.name, grade: existingUser.grade || '未設定' };
             sessionStorage.setItem('quiz_team_current_user', JSON.stringify(currentMember));
+            updateMemberUI();
+        }
+
+        // 提交首次註冊年級選擇
+        function handleGradeSubmit(e) {
+            e.preventDefault();
+            const grade = document.getElementById('register-grade').value;
+            if (!grade || !pendingUser) return;
+
+            const users = getStorage('quiz_team_users');
+            users.push({ name: pendingUser.name, pwd: pendingUser.pwd, grade });
+            setStorage('quiz_team_users', users);
+
+            currentMember = { name: pendingUser.name, grade };
+            sessionStorage.setItem('quiz_team_current_user', JSON.stringify(currentMember));
+            pendingUser = null;
+
+            document.getElementById('member-grade-card').classList.add('hidden');
             updateMemberUI();
         }
 
         function handleMemberLogout() {
             currentMember = null;
+            pendingUser = null;
             sessionStorage.removeItem('quiz_team_current_user');
             document.getElementById('login-name').value = '';
             document.getElementById('login-pwd').value = '';
             updateMemberUI();
         }
 
+        function checkMemberNotifications() {
+            if (!currentMember) return;
+            const records = getStorage('quiz_team_leaves');
+            let updated = false;
+
+            records.forEach(r => {
+                if (r.name === currentMember.name && r.status !== '待處理' && !r.notified) {
+                    const dateParts = r.date.split('-');
+                    let dateDisplay = r.date;
+                    if (dateParts.length === 3) {
+                        const year = parseInt(dateParts[0], 10);
+                        const month = parseInt(dateParts[1], 10);
+                        const day = parseInt(dateParts[2], 10);
+                        const dateObj = new Date(year, month - 1, day);
+                        const weekDays = ['日', '一', '二', '三', '四', '五', '六'];
+                        const weekStr = weekDays[dateObj.getDay()];
+                        dateDisplay = `${month}月${day}日星期${weekStr}`;
+                    }
+
+                    alert(`【站內審核通知】\n\n您於 ${dateDisplay}的${r.type}${r.status}`);
+                    r.notified = true;
+                    updated = true;
+                }
+            });
+
+            if (updated) {
+                setStorage('quiz_team_leaves', records);
+            }
+        }
+
         function updateMemberUI() {
             const authCard = document.getElementById('member-auth-card');
+            const gradeCard = document.getElementById('member-grade-card');
             const dashboard = document.getElementById('member-dashboard');
 
             if (currentMember) {
                 authCard.classList.add('hidden');
+                gradeCard.classList.add('hidden');
                 dashboard.classList.remove('hidden');
-                document.getElementById('current-user-display').textContent = currentMember.name;
+                document.getElementById('current-user-display').textContent = `${currentMember.name} (${currentMember.grade || '未設定年級'})`;
                 renderMyRecords();
+                checkMemberNotifications();
             } else {
                 authCard.classList.remove('hidden');
+                gradeCard.classList.add('hidden');
                 dashboard.classList.add('hidden');
             }
         }
@@ -463,12 +563,13 @@
                 date,
                 reason,
                 timestamp: new Date().toLocaleString('zh-HK'),
-                status: '待處理'
+                status: '待處理',
+                notified: false
             });
             setStorage('quiz_team_leaves', records);
 
             document.getElementById('leave-form').reset();
-            handleLeaveTypeChange(); // 重置欄位狀態
+            handleLeaveTypeChange();
             const msg = document.getElementById('success-msg');
             msg.classList.remove('hidden');
             setTimeout(() => msg.classList.add('hidden'), 3000);
@@ -507,6 +608,7 @@
                 isCaptainAuthenticated = true;
                 document.getElementById('captain-auth-card').classList.add('hidden');
                 document.getElementById('captain-panel').classList.remove('hidden');
+                populateCaptainNameFilter();
                 renderCaptainRecords();
                 renderCaptainUsers();
             } else {
@@ -539,17 +641,44 @@
             }
         }
 
+        // 動態更新管理員端「隊員姓名」選單選項
+        function populateCaptainNameFilter() {
+            const nameSelect = document.getElementById('filter-name');
+            if (!nameSelect) return;
+
+            const selectedValue = nameSelect.value;
+            const users = getStorage('quiz_team_users');
+
+            let optionsHtml = '<option value="ALL">全部隊員</option>';
+            users.forEach(u => {
+                optionsHtml += `<option value="${u.name}">${u.name}</option>`;
+            });
+
+            nameSelect.innerHTML = optionsHtml;
+            if (users.some(u => u.name === selectedValue) || selectedValue === 'ALL') {
+                nameSelect.value = selectedValue;
+            }
+        }
+
         // 取得經過搜尋條件過濾後的請假紀錄
         function getFilteredRecords() {
             const records = getStorage('quiz_team_leaves');
+            const users = getStorage('quiz_team_users');
+
             const statusFilter = document.getElementById('filter-status') ? document.getElementById('filter-status').value : 'ALL';
-            const nameFilter = document.getElementById('filter-name') ? document.getElementById('filter-name').value.trim().toLowerCase() : '';
+            const gradeFilter = document.getElementById('filter-grade') ? document.getElementById('filter-grade').value : 'ALL';
+            const nameFilter = document.getElementById('filter-name') ? document.getElementById('filter-name').value : 'ALL';
             const startDate = document.getElementById('filter-start-date') ? document.getElementById('filter-start-date').value : '';
             const endDate = document.getElementById('filter-end-date') ? document.getElementById('filter-end-date').value : '';
 
+            // 建立姓名與年級的映射關聯
+            const userGradeMap = {};
+            users.forEach(u => { userGradeMap[u.name] = u.grade || '未設定'; });
+
             return records.filter(r => {
                 if (statusFilter !== 'ALL' && r.status !== statusFilter) return false;
-                if (nameFilter && !(r.name || '').toLowerCase().includes(nameFilter)) return false;
+                if (nameFilter !== 'ALL' && r.name !== nameFilter) return false;
+                if (gradeFilter !== 'ALL' && userGradeMap[r.name] !== gradeFilter) return false;
                 if (startDate && r.date < startDate) return false;
                 if (endDate && r.date > endDate) return false;
                 return true;
@@ -558,7 +687,8 @@
 
         function resetFilters() {
             if(document.getElementById('filter-status')) document.getElementById('filter-status').value = 'ALL';
-            if(document.getElementById('filter-name')) document.getElementById('filter-name').value = '';
+            if(document.getElementById('filter-grade')) document.getElementById('filter-grade').value = 'ALL';
+            if(document.getElementById('filter-name')) document.getElementById('filter-name').value = 'ALL';
             if(document.getElementById('filter-start-date')) document.getElementById('filter-start-date').value = '';
             if(document.getElementById('filter-end-date')) document.getElementById('filter-end-date').value = '';
             renderCaptainRecords();
@@ -569,6 +699,7 @@
             const record = records.find(r => r.id === id);
             if (record) {
                 record.status = newStatus;
+                record.notified = false; // 觸發站內通知標記
                 setStorage('quiz_team_leaves', records);
                 renderCaptainRecords();
             }
@@ -582,22 +713,28 @@
         }
 
         function renderCaptainRecords() {
+            populateCaptainNameFilter();
             const filteredRecords = getFilteredRecords();
             const tbody = document.getElementById('captain-records-table');
             const countDisplay = document.getElementById('filter-result-count');
+            const users = getStorage('quiz_team_users');
+
+            const userGradeMap = {};
+            users.forEach(u => { userGradeMap[u.name] = u.grade || '未設定'; });
 
             if (countDisplay) {
                 countDisplay.textContent = `顯示 ${filteredRecords.length} 筆紀錄`;
             }
 
             if (filteredRecords.length === 0) {
-                tbody.innerHTML = `<tr><td colspan="7" class="p-4 text-center text-slate-400">沒有符合條件的請假紀錄</td></tr>`;
+                tbody.innerHTML = `<tr><td colspan="8" class="p-4 text-center text-slate-400">沒有符合條件的請假紀錄</td></tr>`;
                 return;
             }
 
             tbody.innerHTML = filteredRecords.map(r => `
                 <tr class="hover:bg-slate-50">
                     <td class="p-3 font-medium">${r.name}</td>
+                    <td class="p-3 text-xs text-slate-500 font-medium">${userGradeMap[r.name] || '未設定'}</td>
                     <td class="p-3">${getTypeBadge(r.type)}</td>
                     <td class="p-3 text-indigo-600 font-medium">${r.date}</td>
                     <td class="p-3 text-slate-600 max-w-xs truncate">${r.reason}</td>
@@ -616,13 +753,14 @@
             const tbody = document.getElementById('captain-users-table');
 
             if (users.length === 0) {
-                tbody.innerHTML = `<tr><td colspan="3" class="p-4 text-center text-slate-400">尚無註冊隊員帳號</td></tr>`;
+                tbody.innerHTML = `<tr><td colspan="4" class="p-4 text-center text-slate-400">尚無註冊隊員帳號</td></tr>`;
                 return;
             }
 
             tbody.innerHTML = users.map(u => `
                 <tr class="hover:bg-slate-50">
                     <td class="p-3 font-medium text-slate-800">${u.name}</td>
+                    <td class="p-3 text-slate-600">${u.grade || '未設定'}</td>
                     <td class="p-3 font-mono text-slate-500">${u.pwd}</td>
                     <td class="p-3 text-center space-x-1">
                         <button onclick="resetUserPassword('${u.name}')" class="text-xs bg-indigo-50 text-indigo-600 hover:bg-indigo-100 px-2 py-1 rounded">重設密碼</button>
@@ -651,27 +789,34 @@
                 let users = getStorage('quiz_team_users');
                 users = users.filter(u => u.name !== userName);
                 setStorage('quiz_team_users', users);
+                populateCaptainNameFilter();
                 renderCaptainUsers();
+                renderCaptainRecords();
             }
         }
 
         // 匯出 CSV 功能（加上 BOM 防止 Excel 中文亂碼）
         function exportCSV() {
             const records = getFilteredRecords();
+            const users = getStorage('quiz_team_users');
+            const userGradeMap = {};
+            users.forEach(u => { userGradeMap[u.name] = u.grade || '未設定'; });
+
             if (records.length === 0) {
                 alert('目前沒有可供匯出的請假紀錄！');
                 return;
             }
 
-            let csv = '隊員姓名,請假類別,請假日期,請假原因,遞交時間,審核狀態\n';
+            let csv = '隊員姓名,就讀年級,請假類別,請假日期,請假原因,遞交時間,審核狀態\n';
             records.forEach(r => {
                 const name = `"${(r.name || '').replace(/"/g, '""')}"`;
+                const grade = `"${(userGradeMap[r.name] || '未設定').replace(/"/g, '""')}"`;
                 const type = `"${(r.type || '事假').replace(/"/g, '""')}"`;
                 const date = `"${(r.date || '').replace(/"/g, '""')}"`;
                 const reason = `"${(r.reason || '').replace(/"/g, '""')}"`;
                 const timestamp = `"${(r.timestamp || '').replace(/"/g, '""')}"`;
                 const status = `"${(r.status || '').replace(/"/g, '""')}"`;
-                csv += `${name},${type},${date},${reason},${timestamp},${status}\n`;
+                csv += `${name},${grade},${type},${date},${reason},${timestamp},${status}\n`;
             });
 
             const blob = new Blob(['\uFEFF' + csv], { type: 'text/csv;charset=utf-8;' });
@@ -731,6 +876,7 @@
                             localStorage.setItem('quiz_team_captain_pwd', data.quiz_team_captain_pwd);
                         }
                         alert('系統資料已成功還原！');
+                        populateCaptainNameFilter();
                         renderCaptainRecords();
                         renderCaptainUsers();
                     }
