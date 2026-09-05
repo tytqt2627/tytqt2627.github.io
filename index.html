@@ -3,24 +3,22 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>問答隊請假系統</title>
+    <title>問答隊請假管理系統</title>
     <script src="https://cdn.tailwindcss.com"></script>
 </head>
 <body class="bg-slate-100 min-h-screen font-sans">
 
-    <!-- 頂部導覽列 -->
     <nav class="bg-indigo-900 text-white shadow-md">
         <div class="max-w-4xl mx-auto px-4 py-3 flex justify-between items-center">
             <span class="font-bold text-lg tracking-wide">問答隊管理系統</span>
             <div id="nav-home-btn" class="hidden">
-                <a href="#home" class="text-xs bg-indigo-800 hover:bg-indigo-700 px-3 py-1.5 rounded-lg transition text-indigo-100">← 返回主頁入口</a>
+                <a href="#home" class="text-xs bg-indigo-800 hover:bg-indigo-700 px-3 py-1.5 rounded-lg transition text-indigo-100">返回主頁入口</a>
             </div>
         </div>
     </nav>
 
     <div class="max-w-4xl mx-auto p-4 sm:p-6">
 
-        <!-- ==================== 頁面 0：主頁入口門戶 (#home) ==================== -->
         <main id="page-home" class="space-y-8 py-8">
             <div class="text-center space-y-3">
                 <h1 class="text-3xl font-extrabold text-slate-800">問答隊請假管理系統</h1>
@@ -28,11 +26,10 @@
             </div>
 
             <div class="grid md:grid-cols-2 gap-6 max-w-2xl mx-auto">
-                <!-- 隊員入口卡片 -->
                 <a href="#member" class="group bg-white p-6 rounded-2xl shadow-md border border-slate-200 hover:shadow-xl hover:border-indigo-500 transition duration-300 flex flex-col justify-between">
                     <div>
-                        <div class="w-12 h-12 bg-indigo-100 text-indigo-600 rounded-xl flex items-center justify-center text-2xl font-bold mb-4 group-hover:scale-110 transition">
-                            👤
+                        <div class="w-10 h-10 bg-indigo-100 text-indigo-600 rounded-lg flex items-center justify-center font-bold text-sm mb-4 group-hover:bg-indigo-600 group-hover:text-white transition">
+                            隊員
                         </div>
                         <h2 class="text-xl font-bold text-slate-800 group-hover:text-indigo-600 transition">隊員請假端</h2>
                         <p class="text-slate-500 text-xs mt-2 leading-relaxed">隊員帳號登入、檢視訓練日程、多日期遞交請假表單，以及查詢個人請假紀錄。</p>
@@ -42,11 +39,10 @@
                     </div>
                 </a>
 
-                <!-- 管理團隊入口卡片（隊長/老師/教練） -->
                 <a href="#captain" class="group bg-white p-6 rounded-2xl shadow-md border border-slate-200 hover:shadow-xl hover:border-slate-700 transition duration-300 flex flex-col justify-between">
                     <div>
-                        <div class="w-12 h-12 bg-slate-100 text-slate-700 rounded-xl flex items-center justify-center text-2xl font-bold mb-4 group-hover:scale-110 transition">
-                            🛡️
+                        <div class="w-10 h-10 bg-slate-100 text-slate-700 rounded-lg flex items-center justify-center font-bold text-sm mb-4 group-hover:bg-slate-800 group-hover:text-white transition">
+                            管理
                         </div>
                         <h2 class="text-xl font-bold text-slate-800 group-hover:text-slate-900 transition">管理審核端</h2>
                         <p class="text-slate-500 text-xs mt-2 leading-relaxed">隊長、老師及教練專屬管理後台，設定未來訓練日程、審核全隊請假申請、匯出報表與備份資料。</p>
@@ -59,14 +55,12 @@
         </main>
 
 
-        <!-- ==================== 頁面 1：隊員請假端 (#member) ==================== -->
         <main id="page-member" class="space-y-6 hidden">
             <header class="bg-indigo-700 text-white rounded-xl p-6 shadow-md">
                 <h1 class="text-2xl font-bold">隊員請假專區</h1>
                 <p class="text-indigo-200 text-sm mt-1">遞交請假申請及查詢個人審核紀錄</p>
             </header>
 
-            <!-- 步驟 A：隊員登入/註冊卡片 -->
             <div id="member-auth-card" class="bg-white rounded-xl p-6 shadow-md border border-slate-200 max-w-md mx-auto">
                 <h2 class="text-xl font-bold text-slate-800 mb-2 text-center">隊員帳號登入</h2>
                 <p class="text-xs text-slate-500 mb-4 text-center">首次使用輸入姓名與密碼即可開始註冊流程</p>
@@ -86,12 +80,11 @@
                 </form>
             </div>
 
-            <!-- 步驟 B：首次註冊選擇年級卡片 -->
             <div id="member-grade-card" class="bg-white rounded-xl p-6 shadow-md border border-slate-200 max-w-md mx-auto hidden">
                 <div class="text-center mb-4">
                     <span class="inline-block px-3 py-1 bg-indigo-100 text-indigo-700 text-xs font-semibold rounded-full mb-2">首次註冊步驟 2/2</span>
                     <h2 class="text-xl font-bold text-slate-800">請選擇您的年級</h2>
-                    <p class="text-xs text-slate-500 mt-1">設定年級以便管理團隊（隊長/老師/教練）進行身份核對</p>
+                    <p class="text-xs text-slate-500 mt-1">設定年級以便管理團隊進行身份核對</p>
                 </div>
                 <form onsubmit="handleGradeSubmit(event)" class="space-y-4">
                     <div>
@@ -110,7 +103,6 @@
                 </form>
             </div>
 
-            <!-- 隊員控制台（登入後顯示） -->
             <div id="member-dashboard" class="hidden space-y-6">
                 <div class="bg-indigo-50 border border-indigo-200 rounded-xl p-4 flex justify-between items-center">
                     <div>
@@ -120,23 +112,20 @@
                     <button onclick="handleMemberLogout()" class="text-xs bg-slate-200 hover:bg-slate-300 text-slate-700 px-3 py-1.5 rounded-lg font-medium transition">登出帳號</button>
                 </div>
 
-                <!-- 未來三星期訓練日程檢視卡片 -->
                 <div class="bg-white rounded-xl p-6 shadow-md border border-slate-200">
                     <div class="flex justify-between items-center mb-4 border-b pb-2">
                         <div>
-                            <h2 class="text-lg font-bold text-slate-800">📅 近期訓練日程（未來三星期）</h2>
-                            <p class="text-xs text-slate-500 mt-0.5">點擊「＋ 加入請假清單」可迅速將訓練日帶入請假日期</p>
+                            <h2 class="text-lg font-bold text-slate-800">近期訓練日程（未來三星期）</h2>
+                            <p class="text-xs text-slate-500 mt-0.5">點擊「+ 加入請假清單」可將訓練日帶入下方的請假日期列表</p>
                         </div>
                     </div>
-                    <div id="member-training-list" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3"></div>
+                    <div id="member-training-list" class="overflow-x-auto"></div>
                 </div>
 
-                <!-- 填寫請假單卡片 -->
                 <div class="bg-white rounded-xl p-6 shadow-md border border-slate-200">
                     <h2 class="text-lg font-bold text-slate-800 mb-4 border-b pb-2">填寫請假單</h2>
                     <form id="leave-form" onsubmit="handleFormSubmit(event)" class="space-y-4">
                         
-                        <!-- 請假類別選擇 -->
                         <div>
                             <label class="block text-sm font-semibold text-slate-700 mb-1">請假類別</label>
                             <select id="leave-type" onchange="handleLeaveTypeChange()" class="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-indigo-500 focus:outline-none bg-white">
@@ -145,33 +134,29 @@
                             </select>
                         </div>
 
-                        <!-- 多日期選擇器 -->
                         <div>
-                            <label class="block text-sm font-semibold text-slate-700 mb-1">請假日期 (可同時選擇多個日期)</label>
+                            <label class="block text-sm font-semibold text-slate-700 mb-1">新增請假日期</label>
                             <div class="flex gap-2 mb-2">
-                                <input type="date" id="leave-date-picker" class="flex-1 px-4 py-2 border rounded-lg focus:ring-2 focus:ring-indigo-500 focus:outline-none bg-white">
-                                <button type="button" onclick="addSelectedDateFromPicker()" class="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-lg font-medium text-sm transition flex items-center gap-1">
-                                    ＋ 加入日期
+                                <input type="date" id="leave-date-picker" class="flex-1 px-4 py-2 border rounded-lg focus:ring-2 focus:ring-indigo-500 focus:outline-none bg-white text-sm">
+                                <button type="button" onclick="addSelectedDateFromPicker()" class="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-lg font-medium text-sm transition">
+                                    + 新增日期
                                 </button>
                             </div>
                             
-                            <!-- 快速點選按鈕 -->
                             <div class="flex flex-wrap gap-2 mb-3">
-                                <button type="button" onclick="quickAddDate('tue')" class="text-xs bg-indigo-50 hover:bg-indigo-100 text-indigo-700 border border-indigo-200 px-3 py-1.5 rounded-lg transition font-medium flex items-center gap-1">
-                                    ⚡ 加入下一個星期二 <span id="label-next-tue" class="text-indigo-500 font-normal"></span>
+                                <button type="button" onclick="quickAddDate('tue')" class="text-xs bg-indigo-50 hover:bg-indigo-100 text-indigo-700 border border-indigo-200 px-3 py-1.5 rounded-lg transition font-medium">
+                                    加入下一個星期二 <span id="label-next-tue" class="text-indigo-500 font-normal"></span>
                                 </button>
-                                <button type="button" onclick="quickAddDate('fri')" class="text-xs bg-indigo-50 hover:bg-indigo-100 text-indigo-700 border border-indigo-200 px-3 py-1.5 rounded-lg transition font-medium flex items-center gap-1">
-                                    ⚡ 加入下一個星期五 <span id="label-next-fri" class="text-indigo-500 font-normal"></span>
+                                <button type="button" onclick="quickAddDate('fri')" class="text-xs bg-indigo-50 hover:bg-indigo-100 text-indigo-700 border border-indigo-200 px-3 py-1.5 rounded-lg transition font-medium">
+                                    加入下一個星期五 <span id="label-next-fri" class="text-indigo-500 font-normal"></span>
                                 </button>
                             </div>
 
-                            <!-- 已選擇的請假日期標籤展示區 -->
-                            <div id="selected-dates-container" class="min-h-[46px] p-2 bg-slate-50 border border-dashed border-slate-300 rounded-lg flex flex-wrap gap-2 items-center">
-                                <span class="text-xs text-slate-400 px-1">尚未選擇日期，請使用上方月曆或快捷按鈕新增。</span>
-                            </div>
+                            <label class="block text-xs font-semibold text-slate-600 mb-1">已選擇的請假日期清單：</label>
+                            <div id="selected-dates-container" class="border border-slate-200 rounded-lg overflow-hidden bg-slate-50 min-h-[60px]">
+                                </div>
                         </div>
 
-                        <!-- 請假原因欄位 -->
                         <div>
                             <label class="block text-sm font-semibold text-slate-700 mb-1">
                                 請假原因 <span id="reason-required-tag" class="text-red-500">*</span>
@@ -207,7 +192,6 @@
         </main>
 
 
-        <!-- ==================== 頁面 2：管理團隊審核端 (#captain) ==================== -->
         <main id="page-captain" class="space-y-6 hidden">
             <header class="bg-slate-800 text-white rounded-xl p-6 shadow-md flex justify-between items-center">
                 <div>
@@ -217,7 +201,6 @@
                 <a href="#home" class="text-xs bg-slate-700 hover:bg-slate-600 text-white px-3 py-1.5 rounded-lg transition">返回主頁</a>
             </header>
 
-            <!-- 管理身份驗證卡片 -->
             <div id="captain-auth-card" class="bg-white rounded-xl p-6 shadow-md border border-slate-200 max-w-md mx-auto text-center">
                 <h2 class="text-xl font-bold text-slate-800 mb-4">管理人員身份驗證</h2>
                 <div class="flex gap-2">
@@ -226,9 +209,7 @@
                 </div>
             </div>
 
-            <!-- 管理員審核控制台 -->
             <div id="captain-panel" class="hidden space-y-6">
-                <!-- 管理員功能列 -->
                 <div class="bg-slate-200 border border-slate-300 rounded-xl p-4 flex justify-between items-center">
                     <div>
                         <span class="text-xs text-slate-500 font-semibold block">登入身份</span>
@@ -240,10 +221,10 @@
                     </div>
                 </div>
 
-                <!-- 未來三星期訓練日程設定卡片 -->
                 <div class="bg-white rounded-xl p-6 shadow-md border border-slate-200">
-                    <h2 class="text-lg font-bold text-slate-800 mb-2 border-b pb-2">🎯 訓練日程設定（未來三星期）</h2>
-                    <p class="text-xs text-slate-500 mb-4">在此維護訓練日期與時段（放學 / 午膳），設定後隊員可於隊員端直接檢視。</p>
+                    <h2 class="text-lg font-bold text-slate-800 mb-2 border-b pb-2">訓練日程設定（未來三星期）</h2>
+                    <p class="text-xs text-slate-500 mb-4">在此維護訓練日期與時段（放學 / 午膳），設定後隊員可於隊員端直接檢視與選取。</p>
+                    
                     <form onsubmit="handleAddTraining(event)" class="flex flex-wrap gap-3 mb-4 items-end bg-slate-50 p-4 rounded-xl border border-slate-200">
                         <div>
                             <label class="block text-xs font-semibold text-slate-700 mb-1">訓練日期</label>
@@ -260,9 +241,14 @@
                             <label class="block text-xs font-semibold text-slate-700 mb-1">備註說明（選填）</label>
                             <input type="text" id="training-note-input" placeholder="例如：模擬賽、專題練習" class="w-full text-xs px-3 py-2 border rounded-lg focus:ring-1 focus:ring-slate-500 focus:outline-none bg-white">
                         </div>
-                        <button type="submit" class="text-xs bg-slate-800 hover:bg-slate-900 text-white px-4 py-2 rounded-lg font-semibold transition flex items-center gap-1">
-                            ＋ 新增訓練日
-                        </button>
+                        <div class="flex gap-2">
+                            <button type="submit" id="training-submit-btn" class="text-xs bg-slate-800 hover:bg-slate-900 text-white px-4 py-2 rounded-lg font-semibold transition">
+                                新增訓練日
+                            </button>
+                            <button type="button" id="training-cancel-btn" onclick="cancelEditTraining()" class="hidden text-xs bg-slate-200 hover:bg-slate-300 text-slate-700 px-3 py-2 rounded-lg font-semibold transition">
+                                取消
+                            </button>
+                        </div>
                     </form>
 
                     <div class="overflow-x-auto">
@@ -281,13 +267,12 @@
                     </div>
                 </div>
 
-                <!-- 請假審核與搜尋清單 -->
                 <div class="bg-white rounded-xl p-6 shadow-md border border-slate-200">
                     <div class="flex flex-col sm:flex-row justify-between sm:items-center gap-3 mb-4 border-b pb-3">
                         <h2 class="text-lg font-bold text-slate-800">全隊請假申請清單</h2>
                         <div class="flex flex-wrap gap-2">
-                            <button onclick="exportCSV()" class="text-xs bg-emerald-600 hover:bg-emerald-700 text-white px-3 py-1.5 rounded-md font-medium transition flex items-center gap-1">
-                                📊 匯出 CSV 表格
+                            <button onclick="exportCSV()" class="text-xs bg-emerald-600 hover:bg-emerald-700 text-white px-3 py-1.5 rounded-md font-medium transition">
+                                匯出 CSV 表格
                             </button>
                             <button onclick="clearAllData()" class="text-xs bg-red-100 hover:bg-red-200 text-red-700 px-3 py-1.5 rounded-md font-medium transition">
                                 清空所有紀錄
@@ -295,7 +280,6 @@
                         </div>
                     </div>
 
-                    <!-- 搜尋與篩選器面板 -->
                     <div class="bg-slate-50 p-4 rounded-xl border border-slate-200 mb-4 space-y-3">
                         <div class="text-xs font-bold text-slate-500 uppercase tracking-wider">搜尋與篩選條件</div>
                         <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-5 gap-3">
@@ -341,7 +325,6 @@
                         </div>
                     </div>
 
-                    <!-- 假單表格 -->
                     <div class="overflow-x-auto">
                         <table class="w-full text-left border-collapse">
                             <thead>
@@ -361,7 +344,6 @@
                     </div>
                 </div>
 
-                <!-- 隊員帳號管理專區 -->
                 <div class="bg-white rounded-xl p-6 shadow-md border border-slate-200">
                     <h2 class="text-lg font-bold text-slate-800 mb-4 border-b pb-2">隊員帳號管理與密碼重設</h2>
                     <div class="overflow-x-auto">
@@ -379,16 +361,15 @@
                     </div>
                 </div>
 
-                <!-- 系統資料備份與還原專區 -->
                 <div class="bg-white rounded-xl p-6 shadow-md border border-slate-200">
                     <h2 class="text-lg font-bold text-slate-800 mb-2">系統資料備份與還原</h2>
                     <p class="text-xs text-slate-500 mb-4">定期下載 JSON 備份檔可防止瀏覽器清除紀錄或更換電腦時遺失資料。</p>
                     <div class="flex flex-wrap gap-3">
-                        <button onclick="exportBackupJSON()" class="text-xs bg-slate-800 hover:bg-slate-900 text-white px-4 py-2 rounded-lg font-medium transition flex items-center gap-1.5">
-                            📥 匯出系統備份檔 (.json)
+                        <button onclick="exportBackupJSON()" class="text-xs bg-slate-800 hover:bg-slate-900 text-white px-4 py-2 rounded-lg font-medium transition">
+                            匯出系統備份檔 (.json)
                         </button>
-                        <button onclick="triggerImportJSON()" class="text-xs bg-slate-100 hover:bg-slate-200 text-slate-700 border border-slate-300 px-4 py-2 rounded-lg font-medium transition flex items-center gap-1.5">
-                            📤 匯入備份檔 (.json)
+                        <button onclick="triggerImportJSON()" class="text-xs bg-slate-100 hover:bg-slate-200 text-slate-700 border border-slate-300 px-4 py-2 rounded-lg font-medium transition">
+                            匯入備份檔 (.json)
                         </button>
                         <input type="file" id="import-json-file" accept=".json" onchange="handleImportJSON(event)" class="hidden">
                     </div>
@@ -401,11 +382,26 @@
 
     <script>
         let currentMember = JSON.parse(sessionStorage.getItem('quiz_team_current_user') || 'null');
-        let pendingUser = null; // 暫存註冊帳密
+        let pendingUser = null;
         let isCaptainAuthenticated = false;
-        let selectedLeaveDates = []; // 隊員選擇的多個請假日期
+        let selectedLeaveDates = []; 
+        let editingTrainingId = null; 
 
-        // 日期 Formatting 輔助函式（附加星期）
+        const CAPTAIN_SALT = "QuizTeam_Secure_Salt_2026_#X9!";
+        const DEFAULT_CAPTAIN_HASH = "6a487546d2eb709d4ca1ed73fa5dd6f195a950518b4fd83090162252606dc0c9";
+
+        async function hashPassword(plainPwd) {
+            const encoder = new TextEncoder();
+            const data = encoder.encode(plainPwd + CAPTAIN_SALT);
+            const hashBuffer = await crypto.subtle.digest('SHA-256', data);
+            const hashArray = Array.from(new Uint8Array(hashBuffer));
+            return hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+        }
+
+        function getCaptainPasswordHash() {
+            return localStorage.getItem('quiz_team_captain_hash') || DEFAULT_CAPTAIN_HASH;
+        }
+
         function formatDateWithWeekday(dateStr) {
             if (!dateStr) return '';
             const parts = dateStr.split('-');
@@ -418,7 +414,15 @@
             return `${dateStr} (星期${weekDays[dateObj.getDay()]})`;
         }
 
-        // 計算未來的下一個星期幾
+        function getWeekdayText(dateStr) {
+            if (!dateStr) return '';
+            const parts = dateStr.split('-');
+            if (parts.length !== 3) return '';
+            const dateObj = new Date(parseInt(parts[0]), parseInt(parts[1]) - 1, parseInt(parts[2]));
+            const weekDays = ['日', '一', '二', '三', '四', '五', '六'];
+            return `星期${weekDays[dateObj.getDay()]}`;
+        }
+
         function getNextDayOfWeek(targetDay) {
             const today = new Date();
             const result = new Date(today);
@@ -435,7 +439,6 @@
             return `${yyyy}-${mm}-${dd}`;
         }
 
-        // 初始化快捷日期按鈕標籤
         function initQuickDateButtons() {
             const nextTue = getNextDayOfWeek(2);
             const nextFri = getNextDayOfWeek(5);
@@ -447,7 +450,6 @@
             if (friLabel) friLabel.textContent = `(${nextFri})`;
         }
 
-        // --- 多請假日期處理邏輯 ---
         function addLeaveDateDirect(dateStr) {
             if (!dateStr) return;
             if (selectedLeaveDates.includes(dateStr)) {
@@ -488,19 +490,59 @@
             if (!container) return;
 
             if (selectedLeaveDates.length === 0) {
-                container.innerHTML = `<span class="text-xs text-slate-400 px-1">尚未選擇日期，請使用上方月曆、快捷按鈕或下方訓練日程新增。</span>`;
+                container.innerHTML = `<div class="p-4 text-center text-slate-400 text-xs">尚未選擇日期，請使用上方月曆、快捷按鈕或訓練日程新增。</div>`;
                 return;
             }
 
-            container.innerHTML = selectedLeaveDates.map(dateStr => `
-                <span class="inline-flex items-center gap-1.5 px-3 py-1 bg-indigo-100 text-indigo-800 text-xs font-semibold rounded-full border border-indigo-200 shadow-sm">
-                    📅 ${formatDateWithWeekday(dateStr)}
-                    <button type="button" onclick="removeSelectedDate('${dateStr}')" class="text-indigo-500 hover:text-indigo-900 font-bold ml-1 rounded-full w-4 h-4 inline-flex items-center justify-center hover:bg-indigo-200">×</button>
-                </span>
-            `).join('');
+            const trainings = getStorage('quiz_team_trainings');
+
+            let tableHtml = `
+                <div class="overflow-x-auto w-full">
+                    <table class="w-full text-left border-collapse text-xs">
+                        <thead>
+                            <tr class="border-b bg-slate-100 text-slate-600">
+                                <th class="p-2.5">訓練日期</th>
+                                <th class="p-2.5">星期</th>
+                                <th class="p-2.5">時段</th>
+                                <th class="p-2.5">備註</th>
+                                <th class="p-2.5 text-center">操作</th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y bg-white">
+            `;
+
+            selectedLeaveDates.forEach(dateStr => {
+                const match = trainings.find(t => t.date === dateStr);
+                const weekStr = getWeekdayText(dateStr);
+                const slot = match ? match.slot : '放學';
+                const note = match && match.note ? match.note : '-';
+
+                const slotBadge = slot === '放學' 
+                    ? `<span class="px-2 py-0.5 bg-indigo-100 text-indigo-800 rounded font-medium">放學</span>`
+                    : `<span class="px-2 py-0.5 bg-amber-100 text-amber-800 rounded font-medium">午膳</span>`;
+
+                tableHtml += `
+                    <tr class="hover:bg-slate-50">
+                        <td class="p-2.5 font-medium text-indigo-600">${dateStr}</td>
+                        <td class="p-2.5 text-slate-600">${weekStr}</td>
+                        <td class="p-2.5">${slotBadge}</td>
+                        <td class="p-2.5 text-slate-500">${note}</td>
+                        <td class="p-2.5 text-center">
+                            <button type="button" onclick="removeSelectedDate('${dateStr}')" class="text-xs bg-red-50 text-red-600 hover:bg-red-100 px-2.5 py-1 rounded transition">移除</button>
+                        </td>
+                    </tr>
+                `;
+            });
+
+            tableHtml += `
+                        </tbody>
+                    </table>
+                </div>
+            `;
+
+            container.innerHTML = tableHtml;
         }
 
-        // 切換請假類別（病假可免填詳細原因）
         function handleLeaveTypeChange() {
             const type = document.getElementById('leave-type').value;
             const reasonInput = document.getElementById('leave-reason');
@@ -517,7 +559,6 @@
             }
         }
 
-        // 頁面路由分流器
         function handleRouting() {
             const hash = window.location.hash || '#home';
             const pageHome = document.getElementById('page-home');
@@ -552,13 +593,11 @@
         window.addEventListener('hashchange', handleRouting);
         window.addEventListener('DOMContentLoaded', handleRouting);
 
-        // Storage Helper
         function getStorage(key) { return JSON.parse(localStorage.getItem(key) || '[]'); }
         function setStorage(key, data) { localStorage.setItem(key, JSON.stringify(data)); }
 
-        // --- 隊員端邏輯 ---
         function handleForgotPassword() {
-            alert("【忘記密碼指引】\n\n請聯絡隊長、老師或教練重設密碼！");
+            alert("忘記密碼請聯絡隊長、老師或教練協助重設！");
         }
 
         function handleMemberLogin(e) {
@@ -573,7 +612,6 @@
                 return;
             }
 
-            // 首次註冊：彈到下一頁選擇年級
             if (!existingUser) {
                 pendingUser = { name, pwd };
                 alert('註冊成功！請選擇您的年級。');
@@ -582,13 +620,11 @@
                 return;
             }
 
-            // 已有帳號直接登入
             currentMember = { name: existingUser.name, grade: existingUser.grade || '未設定' };
             sessionStorage.setItem('quiz_team_current_user', JSON.stringify(currentMember));
             updateMemberUI();
         }
 
-        // 提交首次註冊年級選擇
         function handleGradeSubmit(e) {
             e.preventDefault();
             const grade = document.getElementById('register-grade').value;
@@ -624,7 +660,7 @@
             records.forEach(r => {
                 if (r.name === currentMember.name && r.status !== '待處理' && !r.notified) {
                     const dateDisplay = formatDateWithWeekday(r.date);
-                    alert(`【站內審核通知】\n\n您於 ${dateDisplay} 的 ${r.type} 申請已「${r.status}」！`);
+                    alert(`【站內審核通知】\n您於 ${dateDisplay} 的 ${r.type} 申請已「${r.status}」！`);
                     r.notified = true;
                     updated = true;
                 }
@@ -656,7 +692,6 @@
             }
         }
 
-        // 隊員端遞交表單（含彈出式二度確認訊息）
         function handleFormSubmit(e) {
             e.preventDefault();
 
@@ -672,19 +707,17 @@
                 reason = '身體不適 / 病假';
             }
 
-            // 格式化日期提示清單
-            const formattedDates = selectedLeaveDates.map(d => formatDateWithWeekday(d)).join('\n• ');
+            const formattedDates = selectedLeaveDates.map(d => formatDateWithWeekday(d)).join('\n- ');
             const confirmMsg = `【請假資訊二次確認】\n\n` +
                 `請假類別：${type}\n` +
-                `請假日期（共 ${selectedLeaveDates.length} 天）：\n• ${formattedDates}\n\n` +
+                `請假日期（共 ${selectedLeaveDates.length} 天）：\n- ${formattedDates}\n\n` +
                 `請假原因：${reason}\n\n` +
                 `確定要遞交上述請假申請嗎？`;
 
             if (!confirm(confirmMsg)) {
-                return; // 隊員點擊取消
+                return;
             }
 
-            // 批次寫入資料庫
             const records = getStorage('quiz_team_leaves');
             const timestamp = new Date().toLocaleString('zh-HK');
 
@@ -703,7 +736,6 @@
 
             setStorage('quiz_team_leaves', records);
 
-            // 清空選擇與表單
             selectedLeaveDates = [];
             renderSelectedDates();
             document.getElementById('leave-form').reset();
@@ -736,7 +768,7 @@
             `).join('');
         }
 
-        // 隊員端檢視未來三星期訓練日程
+        // 渲染隊員端近期訓練日程（以表格/列顯示）
         function renderMemberTrainings() {
             const trainings = getStorage('quiz_team_trainings');
             const container = document.getElementById('member-training-list');
@@ -747,45 +779,69 @@
             maxDate.setDate(maxDate.getDate() + 21);
             const maxDateStr = maxDate.toISOString().slice(0, 10);
 
-            // 篩選未來三星期的訓練
             const activeTrainings = trainings.filter(t => t.date >= todayStr && t.date <= maxDateStr);
             activeTrainings.sort((a, b) => a.date.localeCompare(b.date));
 
             if (activeTrainings.length === 0) {
-                container.innerHTML = `<div class="col-span-full p-4 text-center text-slate-400 border border-dashed rounded-xl">未來三星期暫無預訂訓練日程</div>`;
+                container.innerHTML = `<div class="p-4 text-center text-slate-400 text-xs border border-dashed rounded-xl">未來三星期暫無預訂訓練日程</div>`;
                 return;
             }
 
-            container.innerHTML = activeTrainings.map(t => {
+            let tableHtml = `
+                <table class="w-full text-left border-collapse text-xs sm:text-sm">
+                    <thead>
+                        <tr class="border-b bg-slate-50 text-slate-600">
+                            <th class="p-3">訓練日期</th>
+                            <th class="p-3">星期</th>
+                            <th class="p-3">時段</th>
+                            <th class="p-3">備註</th>
+                            <th class="p-3 text-center">操作</th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y text-sm">
+            `;
+
+            activeTrainings.forEach(t => {
+                const weekStr = getWeekdayText(t.date);
                 const slotBadge = t.slot === '放學' 
                     ? `<span class="px-2 py-0.5 text-xs bg-indigo-100 text-indigo-800 rounded font-medium">放學</span>`
                     : `<span class="px-2 py-0.5 text-xs bg-amber-100 text-amber-800 rounded font-medium">午膳</span>`;
 
-                return `
-                    <div class="p-3.5 bg-slate-50 border border-slate-200 rounded-xl flex flex-col justify-between gap-3">
-                        <div class="flex justify-between items-start">
-                            <div>
-                                <div class="font-bold text-slate-800 text-sm">${formatDateWithWeekday(t.date)}</div>
-                                <div class="text-xs text-slate-500 mt-1">${t.note ? '備註: ' + t.note : '例行練習'}</div>
-                            </div>
-                            ${slotBadge}
-                        </div>
-                        <button type="button" onclick="addLeaveDateDirect('${t.date}')" class="text-xs w-full bg-white hover:bg-indigo-50 text-indigo-700 font-semibold py-1.5 rounded-lg border border-indigo-200 transition">
-                            ＋ 加入請假清單
-                        </button>
-                    </div>
+                tableHtml += `
+                    <tr class="hover:bg-slate-50">
+                        <td class="p-3 font-medium text-indigo-600">${t.date}</td>
+                        <td class="p-3 text-slate-600">${weekStr}</td>
+                        <td class="p-3">${slotBadge}</td>
+                        <td class="p-3 text-slate-500">${t.note || '-'}</td>
+                        <td class="p-3 text-center">
+                            <button type="button" onclick="addLeaveDateDirect('${t.date}')" class="text-xs bg-indigo-50 hover:bg-indigo-100 text-indigo-700 font-semibold px-3 py-1.5 rounded-lg border border-indigo-200 transition">
+                                + 加入請假清單
+                            </button>
+                        </td>
+                    </tr>
                 `;
-            }).join('');
+            });
+
+            tableHtml += `
+                    </tbody>
+                </table>
+            `;
+
+            container.innerHTML = tableHtml;
         }
 
-        // --- 管理團隊（隊長/老師/教練）端邏輯 ---
-        function getCaptainPassword() {
-            return localStorage.getItem('quiz_team_captain_pwd') || 'captain123';
-        }
+        // --- 管理團隊端邏輯 ---
+        async function checkCaptainAuth() {
+            const inputPwd = document.getElementById('captain-pwd').value;
+            if (!inputPwd) {
+                alert('請輸入管理密碼！');
+                return;
+            }
 
-        function checkCaptainAuth() {
-            const pwd = document.getElementById('captain-pwd').value;
-            if (pwd === getCaptainPassword()) {
+            const inputHash = await hashPassword(inputPwd);
+            const currentHash = getCaptainPasswordHash();
+
+            if (inputHash === currentHash) {
                 isCaptainAuthenticated = true;
                 document.getElementById('captain-auth-card').classList.add('hidden');
                 document.getElementById('captain-panel').classList.remove('hidden');
@@ -803,27 +859,29 @@
             document.getElementById('captain-pwd').value = '';
             document.getElementById('captain-panel').classList.add('hidden');
             document.getElementById('captain-auth-card').classList.remove('hidden');
+            cancelEditTraining();
         }
 
-        function handleChangeCaptainPassword() {
+        async function handleChangeCaptainPassword() {
             const oldPwd = prompt('請輸入目前的管理密碼：');
             if (oldPwd === null) return;
 
-            if (oldPwd !== getCaptainPassword()) {
+            const oldHash = await hashPassword(oldPwd);
+            if (oldHash !== getCaptainPasswordHash()) {
                 alert('舊密碼不正確！');
                 return;
             }
 
             const newPwd = prompt('請輸入新的管理密碼：');
             if (newPwd && newPwd.trim() !== '') {
-                localStorage.setItem('quiz_team_captain_pwd', newPwd.trim());
+                const newHash = await hashPassword(newPwd.trim());
+                localStorage.setItem('quiz_team_captain_hash', newHash);
                 alert('管理密碼修改成功！下次登入請使用新密碼。');
             } else if (newPwd !== null) {
                 alert('密碼不能為空！');
             }
         }
 
-        // 管理員端新增訓練日程
         function handleAddTraining(e) {
             e.preventDefault();
             const date = document.getElementById('training-date-input').value;
@@ -831,18 +889,55 @@
             const note = document.getElementById('training-note-input').value.trim();
 
             const trainings = getStorage('quiz_team_trainings');
-            if (trainings.some(t => t.date === date && t.slot === slot)) {
-                alert('該日期與時段已存在於訓練日程中！');
-                return;
+
+            if (editingTrainingId === null) {
+                if (trainings.some(t => t.date === date && t.slot === slot)) {
+                    alert('該日期與時段已存在於訓練日程中！');
+                    return;
+                }
+                trainings.push({ id: Date.now(), date, slot, note });
+            } else {
+                if (trainings.some(t => t.date === date && t.slot === slot && t.id !== editingTrainingId)) {
+                    alert('該日期與時段已存在於其他訓練日程中！');
+                    return;
+                }
+                const index = trainings.findIndex(t => t.id === editingTrainingId);
+                if (index !== -1) {
+                    trainings[index] = { id: editingTrainingId, date, slot, note };
+                }
             }
 
-            trainings.push({ id: Date.now(), date, slot, note });
             trainings.sort((a, b) => a.date.localeCompare(b.date));
             setStorage('quiz_team_trainings', trainings);
 
-            document.getElementById('training-date-input').value = '';
-            document.getElementById('training-note-input').value = '';
+            cancelEditTraining();
             renderCaptainTrainings();
+            renderMemberTrainings();
+            renderSelectedDates();
+        }
+
+        function editTraining(id) {
+            const trainings = getStorage('quiz_team_trainings');
+            const item = trainings.find(t => t.id === id);
+            if (!item) return;
+
+            editingTrainingId = id;
+            document.getElementById('training-date-input').value = item.date;
+            document.getElementById('training-slot-input').value = item.slot;
+            document.getElementById('training-note-input').value = item.note || '';
+
+            document.getElementById('training-submit-btn').textContent = '更新訓練日';
+            document.getElementById('training-cancel-btn').classList.remove('hidden');
+        }
+
+        function cancelEditTraining() {
+            editingTrainingId = null;
+            document.getElementById('training-date-input').value = '';
+            document.getElementById('training-slot-input').value = '放學';
+            document.getElementById('training-note-input').value = '';
+
+            document.getElementById('training-submit-btn').textContent = '新增訓練日';
+            document.getElementById('training-cancel-btn').classList.add('hidden');
         }
 
         function deleteTraining(id) {
@@ -850,7 +945,14 @@
                 let trainings = getStorage('quiz_team_trainings');
                 trainings = trainings.filter(t => t.id !== id);
                 setStorage('quiz_team_trainings', trainings);
+
+                if (editingTrainingId === id) {
+                    cancelEditTraining();
+                }
+
                 renderCaptainTrainings();
+                renderMemberTrainings();
+                renderSelectedDates();
             }
         }
 
@@ -865,13 +967,7 @@
             }
 
             tbody.innerHTML = trainings.map(t => {
-                const dateParts = t.date.split('-');
-                let weekStr = '';
-                if (dateParts.length === 3) {
-                    const d = new Date(parseInt(dateParts[0]), parseInt(dateParts[1])-1, parseInt(dateParts[2]));
-                    const weekDays = ['日', '一', '二', '三', '四', '五', '六'];
-                    weekStr = `星期${weekDays[d.getDay()]}`;
-                }
+                const weekStr = getWeekdayText(t.date);
                 const slotBadge = t.slot === '放學' 
                     ? `<span class="px-2 py-0.5 text-xs bg-indigo-100 text-indigo-800 rounded font-medium">放學</span>`
                     : `<span class="px-2 py-0.5 text-xs bg-amber-100 text-amber-800 rounded font-medium">午膳</span>`;
@@ -882,7 +978,8 @@
                         <td class="p-3 text-slate-600">${weekStr}</td>
                         <td class="p-3">${slotBadge}</td>
                         <td class="p-3 text-slate-500">${t.note || '-'}</td>
-                        <td class="p-3 text-center">
+                        <td class="p-3 text-center space-x-1">
+                            <button onclick="editTraining(${t.id})" class="text-xs bg-indigo-50 text-indigo-600 hover:bg-indigo-100 px-2 py-1 rounded">編輯</button>
                             <button onclick="deleteTraining(${t.id})" class="text-xs bg-red-50 text-red-600 hover:bg-red-100 px-2 py-1 rounded">刪除</button>
                         </td>
                     </tr>
@@ -890,7 +987,6 @@
             }).join('');
         }
 
-        // 動態更新管理員端「隊員姓名」選單選項
         function populateCaptainNameFilter() {
             const nameSelect = document.getElementById('filter-name');
             if (!nameSelect) return;
@@ -909,7 +1005,6 @@
             }
         }
 
-        // 取得經過搜尋條件過濾後的請假紀錄
         function getFilteredRecords() {
             const records = getStorage('quiz_team_leaves');
             const users = getStorage('quiz_team_users');
@@ -947,7 +1042,7 @@
             const record = records.find(r => r.id === id);
             if (record) {
                 record.status = newStatus;
-                record.notified = false; // 觸發站內通知標記
+                record.notified = false;
                 setStorage('quiz_team_leaves', records);
                 renderCaptainRecords();
             }
@@ -1043,7 +1138,6 @@
             }
         }
 
-        // 匯出 CSV 功能（加上 BOM 防止 Excel 中文亂碼）
         function exportCSV() {
             const records = getFilteredRecords();
             const users = getStorage('quiz_team_users');
@@ -1078,13 +1172,11 @@
             document.body.removeChild(link);
         }
 
-        // 匯出系統備份檔 JSON
         function exportBackupJSON() {
             const backupData = {
                 quiz_team_leaves: getStorage('quiz_team_leaves'),
                 quiz_team_users: getStorage('quiz_team_users'),
                 quiz_team_trainings: getStorage('quiz_team_trainings'),
-                quiz_team_captain_pwd: localStorage.getItem('quiz_team_captain_pwd') || 'captain123',
                 exportAt: new Date().toLocaleString('zh-HK')
             };
 
@@ -1104,7 +1196,6 @@
             document.getElementById('import-json-file').click();
         }
 
-        // 匯入備份檔 JSON
         function handleImportJSON(event) {
             const file = event.target.files[0];
             if (!file) return;
@@ -1122,9 +1213,6 @@
                         setStorage('quiz_team_leaves', data.quiz_team_leaves);
                         setStorage('quiz_team_users', data.quiz_team_users);
                         if (data.quiz_team_trainings) setStorage('quiz_team_trainings', data.quiz_team_trainings);
-                        if (data.quiz_team_captain_pwd) {
-                            localStorage.setItem('quiz_team_captain_pwd', data.quiz_team_captain_pwd);
-                        }
                         alert('系統資料已成功還原！');
                         populateCaptainNameFilter();
                         renderCaptainTrainings();
@@ -1139,7 +1227,6 @@
             reader.readAsText(file);
         }
 
-        // Helper: Badge 樣式渲染
         function getTypeBadge(type) {
             if (type === '病假') return `<span class="px-2 py-0.5 text-xs rounded border bg-amber-50 text-amber-700 border-amber-200 font-medium">病假</span>`;
             return `<span class="px-2 py-0.5 text-xs rounded border bg-indigo-50 text-indigo-700 border-indigo-200 font-medium">事假</span>`;
