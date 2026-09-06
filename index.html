@@ -6,11 +6,13 @@
     <title>問答隊請假管理系統</title>
     <script src="https://cdn.tailwindcss.com"></script>
     
+    <!-- 引入 Firebase SDK (Compat 版本，適用於單一 HTML 檔案) -->
     <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
 </head>
 <body class="bg-slate-100 min-h-screen font-sans">
 
+    <!-- 頂部導覽列 -->
     <nav class="bg-indigo-900 text-white shadow-md">
         <div class="max-w-4xl mx-auto px-4 py-3 flex justify-between items-center">
             <span class="font-bold text-lg tracking-wide">問答隊管理系統</span>
@@ -22,6 +24,7 @@
 
     <div class="max-w-4xl mx-auto p-4 sm:p-6">
 
+        <!-- ==================== 頁面 0：主頁入口門戶 (#home) ==================== -->
         <main id="page-home" class="space-y-8 py-8">
             <div class="text-center space-y-3">
                 <h1 class="text-3xl font-extrabold text-slate-800">問答隊請假管理系統</h1>
@@ -57,6 +60,7 @@
             </div>
         </main>
 
+        <!-- ==================== 頁面 1：隊員請假端 (#member) ==================== -->
         <main id="page-member" class="space-y-6 hidden">
             <header class="bg-indigo-700 text-white rounded-xl p-6 shadow-md">
                 <h1 class="text-2xl font-bold">隊員請假專區</h1>
@@ -191,6 +195,7 @@
             </div>
         </main>
 
+        <!-- ==================== 頁面 2：管理團隊審核端 (#captain) ==================== -->
         <main id="page-captain" class="space-y-6 hidden">
             <header class="bg-slate-800 text-white rounded-xl p-6 shadow-md flex justify-between items-center">
                 <div>
@@ -404,32 +409,53 @@
         const CAPTAIN_SALT = "QuizTeam_Secure_Salt_2026_#X9!";
         const DEFAULT_CAPTAIN_HASH = "6a487546d2eb709d4ca1ed73fa5dd6f195a950518b4fd83090162252606dc0c9";
 
-        // --- 2. 雲端儲存與跨裝置實時同步橋接 ---
+        // --- 2. 雲端獨立寫入與實時同步橋接 ---
         function getStorage(key) { 
             return JSON.parse(localStorage.getItem(key) || '[]'); 
         }
 
         function setStorage(key, data) { 
             localStorage.setItem(key, JSON.stringify(data));
-            db.ref(key).set(data); // 寫入雲端 Realtime Database
+
+            // 將陣列轉為以 ID 為 Key 的物件寫入 Firebase，避免併發時整份覆蓋
+            if (Array.isArray(data)) {
+                const dataObj = {};
+                data.forEach((item, index) => {
+                    const id = item.id || item.name || index;
+                    dataObj[id] = item;
+                });
+                db.ref(key).set(dataObj);
+            } else {
+                db.ref(key).set(data);
+            }
         }
 
-        // 監聽 Firebase 雲端資料變更，有變更時自動刷新全隊畫面
+        // 監聽 Firebase 雲端資料變更，自動轉換為陣列格式並同步至全隊畫面
         ['quiz_team_trainings', 'quiz_team_leaves', 'quiz_team_users'].forEach(key => {
             db.ref(key).on('value', (snapshot) => {
                 const val = snapshot.val();
+                let dataArray = [];
+
                 if (val !== null) {
-                    localStorage.setItem(key, JSON.stringify(val));
-                    renderMemberTrainings();
-                    renderSelectedDates();
-                    if (currentMember) {
-                        renderMyRecords();
+                    if (Array.isArray(val)) {
+                        dataArray = val.filter(item => item !== null && item !== undefined);
+                    } else if (typeof val === 'object') {
+                        dataArray = Object.values(val);
                     }
-                    if (isCaptainAuthenticated) {
-                        renderCaptainTrainings();
-                        renderCaptainRecords();
-                        renderCaptainUsers();
-                    }
+                }
+
+                localStorage.setItem(key, JSON.stringify(dataArray));
+
+                // 重新繪製 UI
+                renderMemberTrainings();
+                renderSelectedDates();
+                if (currentMember) {
+                    renderMyRecords();
+                }
+                if (isCaptainAuthenticated) {
+                    renderCaptainTrainings();
+                    renderCaptainRecords();
+                    renderCaptainUsers();
                 }
             });
         });
@@ -773,7 +799,7 @@
 
             selectedLeaveDates.forEach(dateStr => {
                 records.unshift({
-                    id: Date.now() + Math.random(),
+                    id: Date.now() + Math.floor(Math.random() * 1000000),
                     name: currentMember.name,
                     type: type,
                     date: dateStr,
