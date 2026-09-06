@@ -5,6 +5,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>問答隊請假管理系統</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
 </head>
 <body class="bg-slate-100 min-h-screen font-sans">
 
@@ -54,7 +57,6 @@
             </div>
         </main>
 
-
         <main id="page-member" class="space-y-6 hidden">
             <header class="bg-indigo-700 text-white rounded-xl p-6 shadow-md">
                 <h1 class="text-2xl font-bold">隊員請假專區</h1>
@@ -66,7 +68,7 @@
                 <p class="text-xs text-slate-500 mb-4 text-center">首次使用輸入姓名與密碼即可開始註冊流程</p>
                 <form onsubmit="handleMemberLogin(event)" class="space-y-4">
                     <div>
-                        <label class="block text-sm font-semibold text-slate-700 mb-1">登入名稱（必須與香港特別行政區永久性居民身份證一致）</label>
+                        <label class="block text-sm font-semibold text-slate-700 mb-1">登入名稱（必須與身份證一致）</label>
                         <input type="text" id="login-name" required placeholder="例如：溫幾落" class="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-indigo-500 focus:outline-none">
                     </div>
                     <div>
@@ -115,7 +117,7 @@
                 <div class="bg-white rounded-xl p-6 shadow-md border border-slate-200">
                     <div class="flex justify-between items-center mb-4 border-b pb-2">
                         <div>
-                            <h2 class="text-lg font-bold text-slate-800">近期訓練日程（未來三星期）</h2>
+                            <h2 class="text-lg font-bold text-slate-800">近期訓練日程</h2>
                             <p class="text-xs text-slate-500 mt-0.5">點擊「+ 加入請假清單」可將訓練日帶入下方的請假日期列表</p>
                         </div>
                     </div>
@@ -125,7 +127,6 @@
                 <div class="bg-white rounded-xl p-6 shadow-md border border-slate-200">
                     <h2 class="text-lg font-bold text-slate-800 mb-4 border-b pb-2">填寫請假單</h2>
                     <form id="leave-form" onsubmit="handleFormSubmit(event)" class="space-y-4">
-                        
                         <div>
                             <label class="block text-sm font-semibold text-slate-700 mb-1">請假類別</label>
                             <select id="leave-type" onchange="handleLeaveTypeChange()" class="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-indigo-500 focus:outline-none bg-white">
@@ -153,8 +154,7 @@
                             </div>
 
                             <label class="block text-xs font-semibold text-slate-600 mb-1">已選擇的請假日期清單：</label>
-                            <div id="selected-dates-container" class="border border-slate-200 rounded-lg overflow-hidden bg-slate-50 min-h-[60px]">
-                                </div>
+                            <div id="selected-dates-container" class="border border-slate-200 rounded-lg overflow-hidden bg-slate-50 min-h-[60px]"></div>
                         </div>
 
                         <div>
@@ -191,7 +191,6 @@
             </div>
         </main>
 
-
         <main id="page-captain" class="space-y-6 hidden">
             <header class="bg-slate-800 text-white rounded-xl p-6 shadow-md flex justify-between items-center">
                 <div>
@@ -222,8 +221,8 @@
                 </div>
 
                 <div class="bg-white rounded-xl p-6 shadow-md border border-slate-200">
-                    <h2 class="text-lg font-bold text-slate-800 mb-2 border-b pb-2">訓練日程設定（未來三星期）</h2>
-                    <p class="text-xs text-slate-500 mb-4">在此維護訓練日期與時段（放學 / 午膳），設定後隊員可於隊員端直接檢視與選取。</p>
+                    <h2 class="text-lg font-bold text-slate-800 mb-2 border-b pb-2">訓練日程設定</h2>
+                    <p class="text-xs text-slate-500 mb-4">在此維護訓練日期與時段，設定後隊員端會實時同步更新。</p>
                     
                     <form onsubmit="handleAddTraining(event)" class="flex flex-wrap gap-3 mb-4 items-end bg-slate-50 p-4 rounded-xl border border-slate-200">
                         <div>
@@ -363,7 +362,7 @@
 
                 <div class="bg-white rounded-xl p-6 shadow-md border border-slate-200">
                     <h2 class="text-lg font-bold text-slate-800 mb-2">系統資料備份與還原</h2>
-                    <p class="text-xs text-slate-500 mb-4">定期下載 JSON 備份檔可防止瀏覽器清除紀錄或更換電腦時遺失資料。</p>
+                    <p class="text-xs text-slate-500 mb-4">定期下載 JSON 備份檔可作為離線存檔。</p>
                     <div class="flex flex-wrap gap-3">
                         <button onclick="exportBackupJSON()" class="text-xs bg-slate-800 hover:bg-slate-900 text-white px-4 py-2 rounded-lg font-medium transition">
                             匯出系統備份檔 (.json)
@@ -381,6 +380,21 @@
     </div>
 
     <script>
+        // --- 1. 帶入您的 Firebase 設定並初始化 ---
+        const firebaseConfig = {
+            apiKey: "AIzaSyA9qtwyfmJEUTpvkVbZYQWBpTVEgaeMNqw",
+            authDomain: "tytqt2627.firebaseapp.com",
+            databaseURL: "https://tytqt2627-default-rtdb.firebaseio.com",
+            projectId: "tytqt2627",
+            storageBucket: "tytqt2627.firebasestorage.app",
+            messagingSenderId: "585235074533",
+            appId: "1:585235074533:web:cc2d482664edb409acb30c",
+            measurementId: "G-K7ZSGXTSK8"
+        };
+
+        firebase.initializeApp(firebaseConfig);
+        const db = firebase.database();
+
         let currentMember = JSON.parse(sessionStorage.getItem('quiz_team_current_user') || 'null');
         let pendingUser = null;
         let isCaptainAuthenticated = false;
@@ -389,6 +403,45 @@
 
         const CAPTAIN_SALT = "QuizTeam_Secure_Salt_2026_#X9!";
         const DEFAULT_CAPTAIN_HASH = "6a487546d2eb709d4ca1ed73fa5dd6f195a950518b4fd83090162252606dc0c9";
+
+        // --- 2. 雲端儲存與跨裝置實時同步橋接 ---
+        function getStorage(key) { 
+            return JSON.parse(localStorage.getItem(key) || '[]'); 
+        }
+
+        function setStorage(key, data) { 
+            localStorage.setItem(key, JSON.stringify(data));
+            db.ref(key).set(data); // 寫入雲端 Realtime Database
+        }
+
+        // 監聽 Firebase 雲端資料變更，有變更時自動刷新全隊畫面
+        ['quiz_team_trainings', 'quiz_team_leaves', 'quiz_team_users'].forEach(key => {
+            db.ref(key).on('value', (snapshot) => {
+                const val = snapshot.val();
+                if (val !== null) {
+                    localStorage.setItem(key, JSON.stringify(val));
+                    renderMemberTrainings();
+                    renderSelectedDates();
+                    if (currentMember) {
+                        renderMyRecords();
+                    }
+                    if (isCaptainAuthenticated) {
+                        renderCaptainTrainings();
+                        renderCaptainRecords();
+                        renderCaptainUsers();
+                    }
+                }
+            });
+        });
+
+        function getLocalDateStr(offsetDays = 0) {
+            const d = new Date();
+            d.setDate(d.getDate() + offsetDays);
+            const y = d.getFullYear();
+            const m = String(d.getMonth() + 1).padStart(2, '0');
+            const day = String(d.getDate()).padStart(2, '0');
+            return `${y}-${m}-${day}`;
+        }
 
         async function hashPassword(plainPwd) {
             const encoder = new TextEncoder();
@@ -418,7 +471,7 @@
             if (!dateStr) return '';
             const parts = dateStr.split('-');
             if (parts.length !== 3) return '';
-            const dateObj = new Date(parseInt(parts[0]), parseInt(parts[1]) - 1, parseInt(parts[2]));
+            const dateObj = new Date(parseInt(parts[0], 10), parseInt(parts[1], 10) - 1, parseInt(parts[2], 10));
             const weekDays = ['日', '一', '二', '三', '四', '五', '六'];
             return `星期${weekDays[dateObj.getDay()]}`;
         }
@@ -593,9 +646,6 @@
         window.addEventListener('hashchange', handleRouting);
         window.addEventListener('DOMContentLoaded', handleRouting);
 
-        function getStorage(key) { return JSON.parse(localStorage.getItem(key) || '[]'); }
-        function setStorage(key, data) { localStorage.setItem(key, JSON.stringify(data)); }
-
         function handleForgotPassword() {
             alert("忘記密碼請聯絡隊長、老師或教練協助重設！");
         }
@@ -768,22 +818,18 @@
             `).join('');
         }
 
-        // 渲染隊員端近期訓練日程（以表格/列顯示）
         function renderMemberTrainings() {
             const trainings = getStorage('quiz_team_trainings');
             const container = document.getElementById('member-training-list');
             if (!container) return;
 
-            const todayStr = new Date().toISOString().slice(0, 10);
-            const maxDate = new Date();
-            maxDate.setDate(maxDate.getDate() + 21);
-            const maxDateStr = maxDate.toISOString().slice(0, 10);
+            const todayStr = getLocalDateStr(0);
 
-            const activeTrainings = trainings.filter(t => t.date >= todayStr && t.date <= maxDateStr);
+            const activeTrainings = trainings.filter(t => t.date >= todayStr);
             activeTrainings.sort((a, b) => a.date.localeCompare(b.date));
 
             if (activeTrainings.length === 0) {
-                container.innerHTML = `<div class="p-4 text-center text-slate-400 text-xs border border-dashed rounded-xl">未來三星期暫無預訂訓練日程</div>`;
+                container.innerHTML = `<div class="p-4 text-center text-slate-400 text-xs border border-dashed rounded-xl">目前尚無排定之未來訓練日程</div>`;
                 return;
             }
 
@@ -830,7 +876,6 @@
             container.innerHTML = tableHtml;
         }
 
-        // --- 管理團隊端邏輯 ---
         async function checkCaptainAuth() {
             const inputPwd = document.getElementById('captain-pwd').value;
             if (!inputPwd) {
@@ -1050,7 +1095,7 @@
 
         function clearAllData() {
             if (confirm('確定要清空所有隊員的請假紀錄嗎？此動作不可撤銷！')) {
-                localStorage.removeItem('quiz_team_leaves');
+                setStorage('quiz_team_leaves', []);
                 renderCaptainRecords();
             }
         }
@@ -1165,7 +1210,7 @@
             const url = URL.createObjectURL(blob);
             const link = document.createElement('a');
             link.href = url;
-            const todayStr = new Date().toISOString().slice(0, 10).replace(/-/g, '');
+            const todayStr = getLocalDateStr(0).replace(/-/g, '');
             link.download = `問答隊請假紀錄_${todayStr}.csv`;
             document.body.appendChild(link);
             link.click();
@@ -1185,7 +1230,7 @@
             const url = URL.createObjectURL(blob);
             const link = document.createElement('a');
             link.href = url;
-            const todayStr = new Date().toISOString().slice(0, 10).replace(/-/g, '');
+            const todayStr = getLocalDateStr(0).replace(/-/g, '');
             link.download = `問答隊系統備份_${todayStr}.json`;
             document.body.appendChild(link);
             link.click();
