@@ -6,7 +6,7 @@
     <title>問答隊請假管理系統</title>
     <script src="https://cdn.tailwindcss.com"></script>
     
-    <!-- 引入 Firebase SDK (Compat 版本，適用於單一 HTML 檔案) -->
+    <!-- 引入 Firebase SDK (Compat 版本) -->
     <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
 </head>
@@ -385,7 +385,7 @@
     </div>
 
     <script>
-        // --- 1. 帶入您的 Firebase 設定並初始化 ---
+        // --- 1. Firebase 初始化 ---
         const firebaseConfig = {
             apiKey: "AIzaSyA9qtwyfmJEUTpvkVbZYQWBpTVEgaeMNqw",
             authDomain: "tytqt2627.firebaseapp.com",
@@ -400,37 +400,27 @@
         firebase.initializeApp(firebaseConfig);
         const db = firebase.database();
 
+        // 系統變數
         let currentMember = JSON.parse(sessionStorage.getItem('quiz_team_current_user') || 'null');
         let pendingUser = null;
         let isCaptainAuthenticated = false;
         let selectedLeaveDates = []; 
-        let editingTrainingId = null; 
+        let editingTrainingId = null;
 
         const CAPTAIN_SALT = "QuizTeam_Secure_Salt_2026_#X9!";
         const DEFAULT_CAPTAIN_HASH = "6a487546d2eb709d4ca1ed73fa5dd6f195a950518b4fd83090162252606dc0c9";
 
-        // --- 2. 雲端獨立寫入與實時同步橋接 ---
-        function getStorage(key) { 
-            return JSON.parse(localStorage.getItem(key) || '[]'); 
+        // 安全特殊字元轉碼（用於 Firebase Key）
+        function encodeFirebaseKey(key) {
+            return encodeURIComponent(key).replace(/\./g, '%2E');
         }
 
-        function setStorage(key, data) { 
-            localStorage.setItem(key, JSON.stringify(data));
-
-            // 將陣列轉為以 ID 為 Key 的物件寫入 Firebase，避免併發時整份覆蓋
-            if (Array.isArray(data)) {
-                const dataObj = {};
-                data.forEach((item, index) => {
-                    const id = item.id || item.name || index;
-                    dataObj[id] = item;
-                });
-                db.ref(key).set(dataObj);
-            } else {
-                db.ref(key).set(data);
-            }
+        // --- 2. 安全讀寫邏輯（Firebase 為唯一真理源，防範本地覆蓋）---
+        function getStorage(key) {
+            return JSON.parse(localStorage.getItem(key) || '[]');
         }
 
-        // 監聽 Firebase 雲端資料變更，自動轉換為陣列格式並同步至全隊畫面
+        // 全效修復：監聽雲端資料，實現完全獨立節點同步
         ['quiz_team_trainings', 'quiz_team_leaves', 'quiz_team_users'].forEach(key => {
             db.ref(key).on('value', (snapshot) => {
                 const val = snapshot.val();
@@ -444,9 +434,10 @@
                     }
                 }
 
+                // 僅更新本地快取供 UI 渲染，絕不反向寫回雲端
                 localStorage.setItem(key, JSON.stringify(dataArray));
 
-                // 重新繪製 UI
+                // 刷新 UI 畫面
                 renderMemberTrainings();
                 renderSelectedDates();
                 if (currentMember) {
@@ -460,6 +451,34 @@
             });
         });
 
+        // --- 3. 獨立單筆數據寫入 / 刪除函式（解決 Race Condition 與資料覆蓋）---
+        function saveSingleLeave(record) {
+            const leafId = record.id || Date.now() + Math.floor(Math.random() * 1000);
+            record.id = leafId;
+            db.ref(`quiz_team_leaves/${leafId}`).set(record);
+        }
+
+        function saveSingleUser(user) {
+            const keyName = encodeFirebaseKey(user.name);
+            db.ref(`quiz_team_users/${keyName}`).set(user);
+        }
+
+        function deleteSingleUser(userName) {
+            const keyName = encodeFirebaseKey(userName);
+            db.ref(`quiz_team_users/${keyName}`).remove();
+        }
+
+        function saveSingleTraining(training) {
+            const tId = training.id || Date.now();
+            training.id = tId;
+            db.ref(`quiz_team_trainings/${tId}`).set(training);
+        }
+
+        function deleteSingleTraining(id) {
+            db.ref(`quiz_team_trainings/${id}`).remove();
+        }
+
+        // --- 4. 輔助與工具函式 ---
         function getLocalDateStr(offsetDays = 0) {
             const d = new Date();
             d.setDate(d.getDate() + offsetDays);
@@ -706,9 +725,8 @@
             const grade = document.getElementById('register-grade').value;
             if (!grade || !pendingUser) return;
 
-            const users = getStorage('quiz_team_users');
-            users.push({ name: pendingUser.name, pwd: pendingUser.pwd, grade });
-            setStorage('quiz_team_users', users);
+            const newUser = { name: pendingUser.name, pwd: pendingUser.pwd, grade };
+            saveSingleUser(newUser); // 獨立寫入單一帳號
 
             currentMember = { name: pendingUser.name, grade };
             sessionStorage.setItem('quiz_team_current_user', JSON.stringify(currentMember));
@@ -731,20 +749,14 @@
         function checkMemberNotifications() {
             if (!currentMember) return;
             const records = getStorage('quiz_team_leaves');
-            let updated = false;
-
+            
             records.forEach(r => {
                 if (r.name === currentMember.name && r.status !== '待處理' && !r.notified) {
                     const dateDisplay = formatDateWithWeekday(r.date);
                     alert(`【站內審核通知】\n您於 ${dateDisplay} 的 ${r.type} 申請已「${r.status}」！`);
-                    r.notified = true;
-                    updated = true;
+                    db.ref(`quiz_team_leaves/${r.id}/notified`).set(true);
                 }
             });
-
-            if (updated) {
-                setStorage('quiz_team_leaves', records);
-            }
         }
 
         function updateMemberUI() {
@@ -794,12 +806,13 @@
                 return;
             }
 
-            const records = getStorage('quiz_team_leaves');
             const timestamp = new Date().toLocaleString('zh-HK');
 
+            // 逐筆追加寫入雲端（不覆蓋全隊資料）
             selectedLeaveDates.forEach(dateStr => {
-                records.unshift({
-                    id: Date.now() + Math.floor(Math.random() * 1000000),
+                const recordId = Date.now() + Math.floor(Math.random() * 100000);
+                saveSingleLeave({
+                    id: recordId,
                     name: currentMember.name,
                     type: type,
                     date: dateStr,
@@ -809,8 +822,6 @@
                     notified: false
                 });
             });
-
-            setStorage('quiz_team_leaves', records);
 
             selectedLeaveDates = [];
             renderSelectedDates();
@@ -966,25 +977,16 @@
                     alert('該日期與時段已存在於訓練日程中！');
                     return;
                 }
-                trainings.push({ id: Date.now(), date, slot, note });
+                saveSingleTraining({ id: Date.now(), date, slot, note });
             } else {
                 if (trainings.some(t => t.date === date && t.slot === slot && t.id !== editingTrainingId)) {
                     alert('該日期與時段已存在於其他訓練日程中！');
                     return;
                 }
-                const index = trainings.findIndex(t => t.id === editingTrainingId);
-                if (index !== -1) {
-                    trainings[index] = { id: editingTrainingId, date, slot, note };
-                }
+                saveSingleTraining({ id: editingTrainingId, date, slot, note });
             }
 
-            trainings.sort((a, b) => a.date.localeCompare(b.date));
-            setStorage('quiz_team_trainings', trainings);
-
             cancelEditTraining();
-            renderCaptainTrainings();
-            renderMemberTrainings();
-            renderSelectedDates();
         }
 
         function editTraining(id) {
@@ -1013,17 +1015,10 @@
 
         function deleteTraining(id) {
             if (confirm('確定要刪除此訓練日程嗎？')) {
-                let trainings = getStorage('quiz_team_trainings');
-                trainings = trainings.filter(t => t.id !== id);
-                setStorage('quiz_team_trainings', trainings);
-
+                deleteSingleTraining(id);
                 if (editingTrainingId === id) {
                     cancelEditTraining();
                 }
-
-                renderCaptainTrainings();
-                renderMemberTrainings();
-                renderSelectedDates();
             }
         }
 
@@ -1109,20 +1104,15 @@
         }
 
         function updateStatus(id, newStatus) {
-            const records = getStorage('quiz_team_leaves');
-            const record = records.find(r => r.id === id);
-            if (record) {
-                record.status = newStatus;
-                record.notified = false;
-                setStorage('quiz_team_leaves', records);
-                renderCaptainRecords();
-            }
+            db.ref(`quiz_team_leaves/${id}`).update({
+                status: newStatus,
+                notified: false
+            });
         }
 
         function clearAllData() {
             if (confirm('確定要清空所有隊員的請假紀錄嗎？此動作不可撤銷！')) {
-                setStorage('quiz_team_leaves', []);
-                renderCaptainRecords();
+                db.ref('quiz_team_leaves').remove();
             }
         }
 
@@ -1187,25 +1177,15 @@
         function resetUserPassword(userName) {
             const newPwd = prompt(`請輸入隊員【${userName}】的新密碼：`);
             if (newPwd !== null && newPwd.trim() !== '') {
-                const users = getStorage('quiz_team_users');
-                const user = users.find(u => u.name === userName);
-                if (user) {
-                    user.pwd = newPwd.trim();
-                    setStorage('quiz_team_users', users);
-                    alert(`已成功將【${userName}】的密碼更新為：${newPwd.trim()}`);
-                    renderCaptainUsers();
-                }
+                const keyName = encodeFirebaseKey(userName);
+                db.ref(`quiz_team_users/${keyName}/pwd`).set(newPwd.trim());
+                alert(`已成功將【${userName}】的密碼更新為：${newPwd.trim()}`);
             }
         }
 
         function deleteUser(userName) {
             if (confirm(`確定要刪除隊員【${userName}】的帳號嗎？`)) {
-                let users = getStorage('quiz_team_users');
-                users = users.filter(u => u.name !== userName);
-                setStorage('quiz_team_users', users);
-                populateCaptainNameFilter();
-                renderCaptainUsers();
-                renderCaptainRecords();
+                deleteSingleUser(userName);
             }
         }
 
@@ -1281,14 +1261,23 @@
                     }
 
                     if (confirm(`確定要匯入此備份檔嗎？（備份時間：${data.exportAt || '未知'}）\n注意：這將會覆蓋現有的請假紀錄、訓練日程與隊員帳號！`)) {
-                        setStorage('quiz_team_leaves', data.quiz_team_leaves);
-                        setStorage('quiz_team_users', data.quiz_team_users);
-                        if (data.quiz_team_trainings) setStorage('quiz_team_trainings', data.quiz_team_trainings);
-                        alert('系統資料已成功還原！');
-                        populateCaptainNameFilter();
-                        renderCaptainTrainings();
-                        renderCaptainRecords();
-                        renderCaptainUsers();
+                        // 寫入雲端
+                        if (data.quiz_team_leaves) {
+                            const leafObj = {};
+                            data.quiz_team_leaves.forEach(item => leafObj[item.id] = item);
+                            db.ref('quiz_team_leaves').set(leafObj);
+                        }
+                        if (data.quiz_team_users) {
+                            const userObj = {};
+                            data.quiz_team_users.forEach(item => userObj[encodeFirebaseKey(item.name)] = item);
+                            db.ref('quiz_team_users').set(userObj);
+                        }
+                        if (data.quiz_team_trainings) {
+                            const trainObj = {};
+                            data.quiz_team_trainings.forEach(item => trainObj[item.id] = item);
+                            db.ref('quiz_team_trainings').set(trainObj);
+                        }
+                        alert('系統資料已成功還原並同步至雲端！');
                     }
                 } catch (err) {
                     alert('解析檔案失敗，請確定上傳的是有效的 JSON 備份檔。');
