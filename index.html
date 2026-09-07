@@ -6,7 +6,7 @@
     <title>問答隊請假管理系統</title>
     <script src="https://cdn.tailwindcss.com"></script>
     
-    <!-- 引入 Firebase SDK (Compat 版本) -->
+    <!-- 引入 Firebase SDK -->
     <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
 </head>
@@ -136,7 +136,25 @@
                             <select id="leave-type" onchange="handleLeaveTypeChange()" class="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-indigo-500 focus:outline-none bg-white">
                                 <option value="事假">事假</option>
                                 <option value="病假">病假</option>
+                                <option value="遲到">遲到</option>
+                                <option value="早退">早退</option>
                             </select>
+                        </div>
+
+                        <!-- 獨立的時間選擇欄位：遲到到達時間 -->
+                        <div id="arrival-time-group" class="hidden">
+                            <label class="block text-sm font-semibold text-slate-700 mb-1">
+                                預計到達時間 <span class="text-red-500">*</span>
+                            </label>
+                            <input type="time" id="arrival-time" class="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-indigo-500 focus:outline-none bg-white text-sm">
+                        </div>
+
+                        <!-- 獨立的時間選擇欄位：早退離開時間 -->
+                        <div id="departure-time-group" class="hidden">
+                            <label class="block text-sm font-semibold text-slate-700 mb-1">
+                                預計離開時間 <span class="text-red-500">*</span>
+                            </label>
+                            <input type="time" id="departure-time" class="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-indigo-500 focus:outline-none bg-white text-sm">
                         </div>
 
                         <div>
@@ -335,7 +353,7 @@
                                 <tr class="border-b bg-slate-50 text-slate-600 text-sm">
                                     <th class="p-3">姓名</th>
                                     <th class="p-3">年級</th>
-                                    <th class="p-3">類別</th>
+                                    <th class="p-3">類別 / 時間</th>
                                     <th class="p-3">請假日期</th>
                                     <th class="p-3">原因</th>
                                     <th class="p-3">申請時間</th>
@@ -385,7 +403,7 @@
     </div>
 
     <script>
-        // --- 1. Firebase 初始化 ---
+        // --- 1. 初始化 Firebase ---
         const firebaseConfig = {
             apiKey: "AIzaSyA9qtwyfmJEUTpvkVbZYQWBpTVEgaeMNqw",
             authDomain: "tytqt2627.firebaseapp.com",
@@ -400,27 +418,25 @@
         firebase.initializeApp(firebaseConfig);
         const db = firebase.database();
 
-        // 系統變數
         let currentMember = JSON.parse(sessionStorage.getItem('quiz_team_current_user') || 'null');
         let pendingUser = null;
         let isCaptainAuthenticated = false;
         let selectedLeaveDates = []; 
-        let editingTrainingId = null;
+        let editingTrainingId = null; 
 
         const CAPTAIN_SALT = "QuizTeam_Secure_Salt_2026_#X9!";
         const DEFAULT_CAPTAIN_HASH = "6a487546d2eb709d4ca1ed73fa5dd6f195a950518b4fd83090162252606dc0c9";
 
-        // 安全特殊字元轉碼（用於 Firebase Key）
-        function encodeFirebaseKey(key) {
-            return encodeURIComponent(key).replace(/\./g, '%2E');
+        // 安全處理 Firebase Key 名稱中的非法字元
+        function sanitizeKey(str) {
+            return String(str).replace(/[.#$/[\]]/g, "_");
         }
 
-        // --- 2. 安全讀寫邏輯（Firebase 為唯一真理源，防範本地覆蓋）---
-        function getStorage(key) {
-            return JSON.parse(localStorage.getItem(key) || '[]');
+        function getStorage(key) { 
+            return JSON.parse(localStorage.getItem(key) || '[]'); 
         }
 
-        // 全效修復：監聽雲端資料，實現完全獨立節點同步
+        // 監聽 Firebase 雲端資料變更，即時同步至本地快照並更新介面
         ['quiz_team_trainings', 'quiz_team_leaves', 'quiz_team_users'].forEach(key => {
             db.ref(key).on('value', (snapshot) => {
                 const val = snapshot.val();
@@ -434,10 +450,8 @@
                     }
                 }
 
-                // 僅更新本地快取供 UI 渲染，絕不反向寫回雲端
                 localStorage.setItem(key, JSON.stringify(dataArray));
 
-                // 刷新 UI 畫面
                 renderMemberTrainings();
                 renderSelectedDates();
                 if (currentMember) {
@@ -451,34 +465,6 @@
             });
         });
 
-        // --- 3. 獨立單筆數據寫入 / 刪除函式（解決 Race Condition 與資料覆蓋）---
-        function saveSingleLeave(record) {
-            const leafId = record.id || Date.now() + Math.floor(Math.random() * 1000);
-            record.id = leafId;
-            db.ref(`quiz_team_leaves/${leafId}`).set(record);
-        }
-
-        function saveSingleUser(user) {
-            const keyName = encodeFirebaseKey(user.name);
-            db.ref(`quiz_team_users/${keyName}`).set(user);
-        }
-
-        function deleteSingleUser(userName) {
-            const keyName = encodeFirebaseKey(userName);
-            db.ref(`quiz_team_users/${keyName}`).remove();
-        }
-
-        function saveSingleTraining(training) {
-            const tId = training.id || Date.now();
-            training.id = tId;
-            db.ref(`quiz_team_trainings/${tId}`).set(training);
-        }
-
-        function deleteSingleTraining(id) {
-            db.ref(`quiz_team_trainings/${id}`).remove();
-        }
-
-        // --- 4. 輔助與工具函式 ---
         function getLocalDateStr(offsetDays = 0) {
             const d = new Date();
             d.setDate(d.getDate() + offsetDays);
@@ -646,10 +632,34 @@
             const reasonInput = document.getElementById('leave-reason');
             const tag = document.getElementById('reason-required-tag');
 
+            const arrivalGroup = document.getElementById('arrival-time-group');
+            const departureGroup = document.getElementById('departure-time-group');
+            const arrivalInput = document.getElementById('arrival-time');
+            const departureInput = document.getElementById('departure-time');
+
+            arrivalGroup.classList.add('hidden');
+            departureGroup.classList.add('hidden');
+            arrivalInput.required = false;
+            departureInput.required = false;
+
             if (type === '病假') {
                 reasonInput.required = false;
                 reasonInput.placeholder = '（選填）請說明身體狀況或備註';
                 if (tag) tag.classList.add('hidden');
+            } else if (type === '遲到') {
+                reasonInput.required = true;
+                reasonInput.placeholder = '請說明遲到原因（例如：補習、交通延誤）';
+                if (tag) tag.classList.remove('hidden');
+                
+                arrivalGroup.classList.remove('hidden');
+                arrivalInput.required = true;
+            } else if (type === '早退') {
+                reasonInput.required = true;
+                reasonInput.placeholder = '請說明早退原因（例如：家事、就醫）';
+                if (tag) tag.classList.remove('hidden');
+
+                departureGroup.classList.remove('hidden');
+                departureInput.required = true;
             } else {
                 reasonInput.required = true;
                 reasonInput.placeholder = '請說明請假原因（如：補習、家中有事、比賽衝突）';
@@ -725,8 +735,11 @@
             const grade = document.getElementById('register-grade').value;
             if (!grade || !pendingUser) return;
 
-            const newUser = { name: pendingUser.name, pwd: pendingUser.pwd, grade };
-            saveSingleUser(newUser); // 獨立寫入單一帳號
+            const userObj = { name: pendingUser.name, pwd: pendingUser.pwd, grade };
+            const userKey = sanitizeKey(pendingUser.name);
+            
+            // 獨立寫入單一用戶，避免全覆蓋
+            db.ref(`quiz_team_users/${userKey}`).set(userObj);
 
             currentMember = { name: pendingUser.name, grade };
             sessionStorage.setItem('quiz_team_current_user', JSON.stringify(currentMember));
@@ -749,12 +762,16 @@
         function checkMemberNotifications() {
             if (!currentMember) return;
             const records = getStorage('quiz_team_leaves');
-            
+
             records.forEach(r => {
                 if (r.name === currentMember.name && r.status !== '待處理' && !r.notified) {
                     const dateDisplay = formatDateWithWeekday(r.date);
                     alert(`【站內審核通知】\n您於 ${dateDisplay} 的 ${r.type} 申請已「${r.status}」！`);
-                    db.ref(`quiz_team_leaves/${r.id}/notified`).set(true);
+                    
+                    // 單筆更新通知狀態
+                    if (r.id) {
+                        db.ref(`quiz_team_leaves/${r.id}`).update({ notified: true });
+                    }
                 }
             });
         }
@@ -791,13 +808,35 @@
             const type = document.getElementById('leave-type').value;
             let reason = document.getElementById('leave-reason').value.trim();
 
+            const arrivalTime = document.getElementById('arrival-time').value;
+            const departureTime = document.getElementById('departure-time').value;
+
+            let leaveTime = '';
+            let timeTextForConfirm = '';
+
+            if (type === '遲到') {
+                if (!arrivalTime) {
+                    alert('請選擇預計到達時間！');
+                    return;
+                }
+                leaveTime = arrivalTime;
+                timeTextForConfirm = `\n預計到達時間：${arrivalTime}`;
+            } else if (type === '早退') {
+                if (!departureTime) {
+                    alert('請選擇預計離開時間！');
+                    return;
+                }
+                leaveTime = departureTime;
+                timeTextForConfirm = `\n預計離開時間：${departureTime}`;
+            }
+
             if (type === '病假' && !reason) {
                 reason = '身體不適 / 病假';
             }
 
             const formattedDates = selectedLeaveDates.map(d => formatDateWithWeekday(d)).join('\n- ');
             const confirmMsg = `【請假資訊二次確認】\n\n` +
-                `請假類別：${type}\n` +
+                `請假類別：${type}${timeTextForConfirm}\n` +
                 `請假日期（共 ${selectedLeaveDates.length} 天）：\n- ${formattedDates}\n\n` +
                 `請假原因：${reason}\n\n` +
                 `確定要遞交上述請假申請嗎？`;
@@ -808,19 +847,22 @@
 
             const timestamp = new Date().toLocaleString('zh-HK');
 
-            // 逐筆追加寫入雲端（不覆蓋全隊資料）
+            // 採用單筆獨立 set，防範多人同時遞交時互相覆蓋
             selectedLeaveDates.forEach(dateStr => {
-                const recordId = Date.now() + Math.floor(Math.random() * 100000);
-                saveSingleLeave({
-                    id: recordId,
+                const uniqueId = 'leave_' + Date.now() + '_' + Math.floor(Math.random() * 1000000);
+                const newRecord = {
+                    id: uniqueId,
                     name: currentMember.name,
                     type: type,
+                    time: leaveTime,
                     date: dateStr,
                     reason: reason,
                     timestamp: timestamp,
                     status: '待處理',
                     notified: false
-                });
+                };
+                
+                db.ref(`quiz_team_leaves/${uniqueId}`).set(newRecord);
             });
 
             selectedLeaveDates = [];
@@ -831,7 +873,6 @@
             const msg = document.getElementById('success-msg');
             msg.classList.remove('hidden');
             setTimeout(() => msg.classList.add('hidden'), 3000);
-            renderMyRecords();
         }
 
         function renderMyRecords() {
@@ -846,7 +887,7 @@
 
             tbody.innerHTML = myRecords.map(r => `
                 <tr class="hover:bg-slate-50">
-                    <td class="p-3">${getTypeBadge(r.type)}</td>
+                    <td class="p-3">${getTypeBadge(r.type, r.time)}</td>
                     <td class="p-3 text-indigo-600 font-medium">${formatDateWithWeekday(r.date)}</td>
                     <td class="p-3 text-slate-600">${r.reason}</td>
                     <td class="p-3 text-xs text-slate-400">${r.timestamp}</td>
@@ -977,13 +1018,14 @@
                     alert('該日期與時段已存在於訓練日程中！');
                     return;
                 }
-                saveSingleTraining({ id: Date.now(), date, slot, note });
+                const newId = 'train_' + Date.now();
+                db.ref(`quiz_team_trainings/${newId}`).set({ id: newId, date, slot, note });
             } else {
                 if (trainings.some(t => t.date === date && t.slot === slot && t.id !== editingTrainingId)) {
                     alert('該日期與時段已存在於其他訓練日程中！');
                     return;
                 }
-                saveSingleTraining({ id: editingTrainingId, date, slot, note });
+                db.ref(`quiz_team_trainings/${editingTrainingId}`).set({ id: editingTrainingId, date, slot, note });
             }
 
             cancelEditTraining();
@@ -1015,7 +1057,8 @@
 
         function deleteTraining(id) {
             if (confirm('確定要刪除此訓練日程嗎？')) {
-                deleteSingleTraining(id);
+                db.ref(`quiz_team_trainings/${id}`).remove();
+
                 if (editingTrainingId === id) {
                     cancelEditTraining();
                 }
@@ -1032,6 +1075,8 @@
                 return;
             }
 
+            trainings.sort((a, b) => a.date.localeCompare(b.date));
+
             tbody.innerHTML = trainings.map(t => {
                 const weekStr = getWeekdayText(t.date);
                 const slotBadge = t.slot === '放學' 
@@ -1045,8 +1090,8 @@
                         <td class="p-3">${slotBadge}</td>
                         <td class="p-3 text-slate-500">${t.note || '-'}</td>
                         <td class="p-3 text-center space-x-1">
-                            <button onclick="editTraining(${t.id})" class="text-xs bg-indigo-50 text-indigo-600 hover:bg-indigo-100 px-2 py-1 rounded">編輯</button>
-                            <button onclick="deleteTraining(${t.id})" class="text-xs bg-red-50 text-red-600 hover:bg-red-100 px-2 py-1 rounded">刪除</button>
+                            <button onclick="editTraining('${t.id}')" class="text-xs bg-indigo-50 text-indigo-600 hover:bg-indigo-100 px-2 py-1 rounded">編輯</button>
+                            <button onclick="deleteTraining('${t.id}')" class="text-xs bg-red-50 text-red-600 hover:bg-red-100 px-2 py-1 rounded">刪除</button>
                         </td>
                     </tr>
                 `;
@@ -1103,6 +1148,7 @@
             renderCaptainRecords();
         }
 
+        // 單筆更新審核狀態
         function updateStatus(id, newStatus) {
             db.ref(`quiz_team_leaves/${id}`).update({
                 status: newStatus,
@@ -1139,14 +1185,14 @@
                 <tr class="hover:bg-slate-50">
                     <td class="p-3 font-medium">${r.name}</td>
                     <td class="p-3 text-xs text-slate-500 font-medium">${userGradeMap[r.name] || '未設定'}</td>
-                    <td class="p-3">${getTypeBadge(r.type)}</td>
+                    <td class="p-3">${getTypeBadge(r.type, r.time)}</td>
                     <td class="p-3 text-indigo-600 font-medium">${formatDateWithWeekday(r.date)}</td>
                     <td class="p-3 text-slate-600 max-w-xs truncate">${r.reason}</td>
                     <td class="p-3 text-xs text-slate-400">${r.timestamp}</td>
                     <td class="p-3">${getStatusBadge(r.status)}</td>
                     <td class="p-3 text-center">
-                        <button onclick="updateStatus(${r.id}, '已批准')" class="text-xs bg-emerald-50 text-emerald-600 hover:bg-emerald-100 px-2 py-1 rounded mr-1">批准</button>
-                        <button onclick="updateStatus(${r.id}, '已駁回')" class="text-xs bg-rose-50 text-rose-600 hover:bg-rose-100 px-2 py-1 rounded">駁回</button>
+                        <button onclick="updateStatus('${r.id}', '已批准')" class="text-xs bg-emerald-50 text-emerald-600 hover:bg-emerald-100 px-2 py-1 rounded mr-1">批准</button>
+                        <button onclick="updateStatus('${r.id}', '已駁回')" class="text-xs bg-rose-50 text-rose-600 hover:bg-rose-100 px-2 py-1 rounded">駁回</button>
                     </td>
                 </tr>
             `).join('');
@@ -1177,15 +1223,16 @@
         function resetUserPassword(userName) {
             const newPwd = prompt(`請輸入隊員【${userName}】的新密碼：`);
             if (newPwd !== null && newPwd.trim() !== '') {
-                const keyName = encodeFirebaseKey(userName);
-                db.ref(`quiz_team_users/${keyName}/pwd`).set(newPwd.trim());
+                const userKey = sanitizeKey(userName);
+                db.ref(`quiz_team_users/${userKey}`).update({ pwd: newPwd.trim() });
                 alert(`已成功將【${userName}】的密碼更新為：${newPwd.trim()}`);
             }
         }
 
         function deleteUser(userName) {
             if (confirm(`確定要刪除隊員【${userName}】的帳號嗎？`)) {
-                deleteSingleUser(userName);
+                const userKey = sanitizeKey(userName);
+                db.ref(`quiz_team_users/${userKey}`).remove();
             }
         }
 
@@ -1200,16 +1247,17 @@
                 return;
             }
 
-            let csv = '隊員姓名,就讀年級,請假類別,請假日期,請假原因,遞交時間,審核狀態\n';
+            let csv = '隊員姓名,就讀年級,請假類別,預計時間,請假日期,請假原因,遞交時間,審核狀態\n';
             records.forEach(r => {
                 const name = `"${(r.name || '').replace(/"/g, '""')}"`;
                 const grade = `"${(userGradeMap[r.name] || '未設定').replace(/"/g, '""')}"`;
                 const type = `"${(r.type || '事假').replace(/"/g, '""')}"`;
+                const time = `"${(r.time || '').replace(/"/g, '""')}"`;
                 const date = `"${formatDateWithWeekday(r.date).replace(/"/g, '""')}"`;
                 const reason = `"${(r.reason || '').replace(/"/g, '""')}"`;
                 const timestamp = `"${(r.timestamp || '').replace(/"/g, '""')}"`;
                 const status = `"${(r.status || '').replace(/"/g, '""')}"`;
-                csv += `${name},${grade},${type},${date},${reason},${timestamp},${status}\n`;
+                csv += `${name},${grade},${type},${time},${date},${reason},${timestamp},${status}\n`;
             });
 
             const blob = new Blob(['\uFEFF' + csv], { type: 'text/csv;charset=utf-8;' });
@@ -1261,23 +1309,29 @@
                     }
 
                     if (confirm(`確定要匯入此備份檔嗎？（備份時間：${data.exportAt || '未知'}）\n注意：這將會覆蓋現有的請假紀錄、訓練日程與隊員帳號！`)) {
-                        // 寫入雲端
-                        if (data.quiz_team_leaves) {
-                            const leafObj = {};
-                            data.quiz_team_leaves.forEach(item => leafObj[item.id] = item);
-                            db.ref('quiz_team_leaves').set(leafObj);
-                        }
-                        if (data.quiz_team_users) {
-                            const userObj = {};
-                            data.quiz_team_users.forEach(item => userObj[encodeFirebaseKey(item.name)] = item);
-                            db.ref('quiz_team_users').set(userObj);
-                        }
+                        
+                        // 匯入時建立物件索引後整體還原
+                        const leavesObj = {};
+                        (Array.isArray(data.quiz_team_leaves) ? data.quiz_team_leaves : Object.values(data.quiz_team_leaves)).forEach(item => {
+                            if (item && item.id) leavesObj[item.id] = item;
+                        });
+                        db.ref('quiz_team_leaves').set(leavesObj);
+
+                        const usersObj = {};
+                        (Array.isArray(data.quiz_team_users) ? data.quiz_team_users : Object.values(data.quiz_team_users)).forEach(item => {
+                            if (item && item.name) usersObj[sanitizeKey(item.name)] = item;
+                        });
+                        db.ref('quiz_team_users').set(usersObj);
+
                         if (data.quiz_team_trainings) {
                             const trainObj = {};
-                            data.quiz_team_trainings.forEach(item => trainObj[item.id] = item);
+                            (Array.isArray(data.quiz_team_trainings) ? data.quiz_team_trainings : Object.values(data.quiz_team_trainings)).forEach(item => {
+                                if (item && item.id) trainObj[item.id] = item;
+                            });
                             db.ref('quiz_team_trainings').set(trainObj);
                         }
-                        alert('系統資料已成功還原並同步至雲端！');
+
+                        alert('系統資料已成功還原！');
                     }
                 } catch (err) {
                     alert('解析檔案失敗，請確定上傳的是有效的 JSON 備份檔。');
@@ -1287,9 +1341,12 @@
             reader.readAsText(file);
         }
 
-        function getTypeBadge(type) {
-            if (type === '病假') return `<span class="px-2 py-0.5 text-xs rounded border bg-amber-50 text-amber-700 border-amber-200 font-medium">病假</span>`;
-            return `<span class="px-2 py-0.5 text-xs rounded border bg-indigo-50 text-indigo-700 border-indigo-200 font-medium">事假</span>`;
+        function getTypeBadge(type, time) {
+            let timeStr = time ? `<span class="text-[11px] block font-mono text-slate-500 mt-0.5">時間: ${time}</span>` : '';
+            if (type === '病假') return `<span class="px-2 py-0.5 text-xs rounded border bg-amber-50 text-amber-700 border-amber-200 font-medium">病假</span>${timeStr}`;
+            if (type === '遲到') return `<span class="px-2 py-0.5 text-xs rounded border bg-orange-50 text-orange-700 border-orange-200 font-medium">遲到</span>${timeStr}`;
+            if (type === '早退') return `<span class="px-2 py-0.5 text-xs rounded border bg-purple-50 text-purple-700 border-purple-200 font-medium">早退</span>${timeStr}`;
+            return `<span class="px-2 py-0.5 text-xs rounded border bg-indigo-50 text-indigo-700 border-indigo-200 font-medium">事假</span>${timeStr}`;
         }
 
         function getStatusBadge(status) {
